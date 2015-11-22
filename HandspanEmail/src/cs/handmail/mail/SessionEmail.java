@@ -52,7 +52,11 @@ public class SessionEmail {
     public SessionEmail() {
         accuracyEmail = new AccuracyEmail();
     }
-
+    
+    public Store getStore()
+    {
+        return store;
+    }
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
             Properties pro = System.getProperties();

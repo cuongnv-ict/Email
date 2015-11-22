@@ -5,9 +5,16 @@ package cs.handmail.login;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import cs.handmail.Controller.TreeController;
 import cs.handmail.panelmail.ListPerson;
 import cs.handmail.mail.SessionEmail;
+import cs.handmail.panelmail.InboxMail;
 import cs.handmail.panelmail.StatisticMail;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.Timer;
+import java.util.TimerTask;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  *
@@ -18,7 +25,8 @@ public class CenterMail extends javax.swing.JFrame {
     private ListPerson listPerson;
     private StatisticMail statisticEmail;
     private SessionEmail sessionEmail;
-
+    private TreeController treeCtr;
+    private Timer timer;
     /**
      * Creates new form CenterMail
      */
@@ -27,9 +35,48 @@ public class CenterMail extends javax.swing.JFrame {
         sessionEmail = smail;
         listPerson = new ListPerson(sessionEmail);
         Email.setRightComponent(listPerson);
-
+        treeCtr = new TreeController();
+        treeCtr.setTree(TreeMail,sessionEmail);
+        treeCtr.setModelCustomTree(treeCtr.getInboxUserMail());
+        setTreeClick();
+        timer = new Timer();
+        timer.schedule(new TimerTaskTreeRequest(), 1200, 1200);
     }
+    
+    void setTreeClick()
+    {
+        TreeMail.addMouseListener(new MouseAdapter() {
 
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e); //To change body of generated methods, choose Tools | Templates.
+                if(e.getClickCount()==2)
+                {
+                    System.out.println("thong tin in ra");
+                      try{
+                            DefaultMutableTreeNode node = (DefaultMutableTreeNode) TreeMail.getLastSelectedPathComponent();
+                            if(node==null) return;
+                            else{
+                                String nodeName= node.getUserObject().toString();
+                                nodeName = nodeName.substring(5, nodeName.length());
+                                if(node.getUserObject().toString().startsWith("INBOX"))
+                                {
+                                     Email.setRightComponent(new InboxMail(treeCtr.getStore()));
+                                }
+                            }
+                        }catch(Exception ex)
+                        {
+                            // xuwr ly xau hong
+                            ex.printStackTrace();
+                        }
+                    
+                }
+            }
+            
+        });
+        
+    }
+    
     public void updateAcount() {
         listPerson.updateAcount();
     }
@@ -143,6 +190,16 @@ public class CenterMail extends javax.swing.JFrame {
         Email.setRightComponent(listPerson);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
+    public class TimerTaskTreeRequest extends TimerTask
+    {
+
+        @Override
+        public void run() {
+            treeCtr.setModelCustomTree(treeCtr.getInboxUserMail());
+     //       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+        
+    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane Email;
     private javax.swing.JScrollPane ScrollPane;
