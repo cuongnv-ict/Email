@@ -35,6 +35,7 @@ public class ListPerson extends javax.swing.JPanel {
         listAcountFile = new ListAcountFile();
         sessionEmail = smail;
         tableListAcount = new TableListAcount();
+        load.setVisible(false);
     }
 
     public void updateAcount() {
@@ -42,11 +43,18 @@ public class ListPerson extends javax.swing.JPanel {
         if (properties == null) {
             int state = JOptionPane.showConfirmDialog(null, "Danh sách tài khoản chưa tồn tại hoặc chưa cập nhật.\n Bạn có muốn cập nhật.", "Update Acount", JOptionPane.YES_NO_OPTION);
             if (state == JOptionPane.YES_OPTION) {
-                Map<String, Integer> map = sessionEmail.addressEmail();
-                tableListAcount.listAcount(tableAcount, map);
-                for (String key : map.keySet()) {
-                    listAcountFile.addAcount(key);
-                }
+                Thread th = new Thread() {
+                    public void run() {
+                        load.setVisible(true);
+                        Map<String, Integer> map = sessionEmail.addressEmail();
+                        tableListAcount.listAcount(tableAcount, map);
+                        for (String key : map.keySet()) {
+                            listAcountFile.addAcount(key);
+                        }
+                        load.setVisible(false);
+                    }
+                };
+                th.start();
             }
         } else {
             Map<String, Integer> map = new TreeMap<>();
@@ -70,17 +78,20 @@ public class ListPerson extends javax.swing.JPanel {
         tableAcount = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         textField1 = new java.awt.TextField();
-        jLabel1 = new javax.swing.JLabel();
+        load = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
 
         tableAcount.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "", "STT", "Email"
             }
         ));
         jScrollPane1.setViewportView(tableAcount);
@@ -90,15 +101,36 @@ public class ListPerson extends javax.swing.JPanel {
 
         textField1.setPreferredSize(new java.awt.Dimension(230, 32));
 
-        jLabel1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
+        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
+
+        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/user_male_add.png"))); // NOI18N
+        jLabel2.setMaximumSize(new java.awt.Dimension(32, 32));
+        jLabel2.setMinimumSize(new java.awt.Dimension(32, 32));
+        jLabel2.setPreferredSize(new java.awt.Dimension(32, 32));
+
+        jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/user_male_edit.png"))); // NOI18N
+        jLabel3.setMaximumSize(new java.awt.Dimension(32, 32));
+        jLabel3.setMinimumSize(new java.awt.Dimension(32, 32));
+        jLabel3.setPreferredSize(new java.awt.Dimension(32, 32));
+
+        jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/user_male_2_delete.png"))); // NOI18N
+        jLabel4.setMaximumSize(new java.awt.Dimension(32, 32));
+        jLabel4.setMinimumSize(new java.awt.Dimension(32, 32));
+        jLabel4.setPreferredSize(new java.awt.Dimension(32, 32));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addComponent(jLabel1)
+                .addContainerGap()
+                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(load)
                 .addGap(2, 2, 2)
                 .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -108,7 +140,13 @@ public class ListPerson extends javax.swing.JPanel {
                 .addGap(13, 13, 13)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(textField1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -129,9 +167,12 @@ public class ListPerson extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel load;
     private javax.swing.JTable tableAcount;
     private java.awt.TextField textField1;
     // End of variables declaration//GEN-END:variables
