@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import sun.reflect.generics.tree.Tree;
+import cs.handmail.login.AddAcount;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -60,8 +62,8 @@ public class ListPerson extends javax.swing.JPanel {
             Map<String, Integer> map = new TreeMap<>();
             for (Object key : properties.keySet()) {
                 map.put(properties.getProperty(String.valueOf(key)), 1);
-                tableListAcount.listAcount(tableAcount, map);
             }
+            tableListAcount.listAcount(tableAcount, map);
         }
     }
 
@@ -107,6 +109,11 @@ public class ListPerson extends javax.swing.JPanel {
         jLabel2.setMaximumSize(new java.awt.Dimension(32, 32));
         jLabel2.setMinimumSize(new java.awt.Dimension(32, 32));
         jLabel2.setPreferredSize(new java.awt.Dimension(32, 32));
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/user_male_edit.png"))); // NOI18N
         jLabel3.setMaximumSize(new java.awt.Dimension(32, 32));
@@ -117,6 +124,11 @@ public class ListPerson extends javax.swing.JPanel {
         jLabel4.setMaximumSize(new java.awt.Dimension(32, 32));
         jLabel4.setMinimumSize(new java.awt.Dimension(32, 32));
         jLabel4.setPreferredSize(new java.awt.Dimension(32, 32));
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -164,6 +176,20 @@ public class ListPerson extends javax.swing.JPanel {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        // TODO add your handling code here:
+        AddAcount addAcount = new AddAcount(null, true, tableAcount);
+        addAcount.setVisible(true);
+    }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        // TODO add your handling code here:
+        TableModel tableModel = tableAcount.getModel();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+
+        }
+    }//GEN-LAST:event_jLabel4MouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

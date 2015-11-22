@@ -54,6 +54,7 @@ public class CenterMail extends javax.swing.JFrame {
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
+        jMenuItem6 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -106,6 +107,9 @@ public class CenterMail extends javax.swing.JFrame {
         jMenuItem3.setText("Port");
         jMenu2.add(jMenuItem3);
 
+        jMenuItem6.setText("Reset Acount");
+        jMenu2.add(jMenuItem6);
+
         jMenuBar2.add(jMenu2);
 
         jMenu3.setText("Help");
@@ -152,5 +156,6 @@ public class CenterMail extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
+    private javax.swing.JMenuItem jMenuItem6;
     // End of variables declaration//GEN-END:variables
 }
