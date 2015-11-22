@@ -15,6 +15,7 @@ import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Properties;
 import java.util.Set;
@@ -68,7 +69,22 @@ public class ListAcountFile {
             if (properties == null) {
                 properties = new Properties();
             } else {
-                id = properties.size() + 1;
+//                id = properties.size() + 1;
+                ArrayList<Integer> idKey = new ArrayList<>();
+                for (Object key : properties.keySet()) {
+                    idKey.add(Integer.parseInt(String.valueOf(key)));
+                }
+                Collections.sort(idKey);
+                for (int i = 0; i < idKey.size();) {
+                    if (id < idKey.get(i)) {
+                        break;
+                    } else if (id == idKey.get(i)) {
+                        id++;
+                        i++;
+                    } else {
+                        i++;
+                    }
+                }
             }
             properties.setProperty(String.valueOf(id), mail);
             properties.store(fileOutPutStream, null);
@@ -85,22 +101,27 @@ public class ListAcountFile {
             if (properties != null) {
                 for (String mail : mails) {
                     for (Object key : properties.keySet()) {
-                        if (mail.equals(properties.get(key))) {
-
+                        if (mail.equals(properties.getProperty(String.valueOf(key)))) {
+                            properties.remove(key, mail);
+                            break;
                         }
                     }
                 }
+                properties.store(fileOutPutStream, null);
+                fileOutPutStream.close();
             }
         } catch (FileNotFoundException ex) {
+            Logger.getLogger(ListAcountFile.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
             Logger.getLogger(ListAcountFile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     public boolean isExistsAcount(String mail) {
         Properties properties = readListAcount();
-        if(properties !=null){
-            for(Object key : properties.keySet()){
-                if(mail.equals(properties.getProperty(String.valueOf(key)))){
+        if (properties != null) {
+            for (Object key : properties.keySet()) {
+                if (mail.equals(properties.getProperty(String.valueOf(key)))) {
                     return true;
                 }
             }

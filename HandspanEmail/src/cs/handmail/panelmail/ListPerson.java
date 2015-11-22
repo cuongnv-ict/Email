@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import sun.reflect.generics.tree.Tree;
 import cs.handmail.login.AddAcount;
+import java.util.ArrayList;
 import javax.swing.table.TableModel;
 
 /**
@@ -186,8 +187,24 @@ public class ListPerson extends javax.swing.JPanel {
     private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
         // TODO add your handling code here:
         TableModel tableModel = tableAcount.getModel();
+        ArrayList<String> mails = new ArrayList<>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
-
+            if ((Boolean) tableModel.getValueAt(i, 0) == true) {
+                mails.add(String.valueOf(tableModel.getValueAt(i, 2)));
+            }
+        }
+        if (mails.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Hãy chọn tài khoản để xóa", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        } else {
+            listAcountFile.deleteAcount(mails);
+            properties = listAcountFile.readListAcount();
+            tableListAcount = new TableListAcount();
+            Map<String, Integer> map = new TreeMap<>();
+            for (Object key : properties.keySet()) {
+                map.put(properties.getProperty(String.valueOf(key)), 1);
+            }
+            tableListAcount.listAcount(tableAcount, map);
         }
     }//GEN-LAST:event_jLabel4MouseClicked
 
