@@ -19,6 +19,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 import cs.handmail.mail.AccuracyEmail;
+import cs.handmail.panelmail.InBox;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,11 +53,11 @@ public class SessionEmail {
     public SessionEmail() {
         accuracyEmail = new AccuracyEmail();
     }
-    
-    public Store getStore()
-    {
+
+    public Store getStore() {
         return store;
     }
+
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
             Properties pro = System.getProperties();
@@ -113,6 +114,7 @@ public class SessionEmail {
                     }
                 }
             }
+//            inbox.close(true);
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -173,12 +175,13 @@ public class SessionEmail {
                     }
                 };
                 FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
-                SearchTerm andTerm = new AndTerm(olderThan, newerThan);
+                SearchTerm andTerm = new AndTerm(delete, olderThan);
+                andTerm = new AndTerm(andTerm, newerThan);
                 andTerm = new AndTerm(andTerm, addressTerm);
-                andTerm = new AndTerm(andTerm, delete);
                 Message messages[] = inbox.search(andTerm);
                 map.put(key, messages);
             }
+//            inbox.close(true);
             return map;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -188,4 +191,111 @@ public class SessionEmail {
         return map;
     }
 
+    public Message[] getMessageCustomer() {
+        try {
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_ONLY);
+            AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
+                @Override
+                public boolean match(Message msg) {
+                    try {
+                        for (Address a : msg.getFrom()) {
+                            String m = accuracyEmail.extraEmail(a.toString());
+                            if (accuracyEmail.isEmailHandspan(m)) {
+                                return false;
+                            }
+
+                        }
+                    } catch (MessagingException ex) {
+                        Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return true;
+                }
+            };
+            FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
+            SearchTerm andTerm = new AndTerm(delete, addressTerm);
+            Message msg[] = inbox.search(andTerm);
+//            inbox.close(true);
+            return msg;
+        } catch (MessagingException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public Message[] getMessageStaff() {
+        try {
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_ONLY);
+            AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
+                @Override
+                public boolean match(Message msg) {
+                    try {
+                        for (Address a : msg.getFrom()) {
+                            String m = accuracyEmail.extraEmail(a.toString());
+                            if (accuracyEmail.isEmailHandspan(m)) {
+                                return true;
+                            }
+
+                        }
+                    } catch (MessagingException ex) {
+                        Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return false;
+                }
+            };
+            FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
+            SearchTerm andTerm = new AndTerm(delete, addressTerm);
+            Message msg[] = inbox.search(andTerm);
+//            inbox.close(true);
+            return msg;
+        } catch (MessagingException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public Message[] getMessageSent() {
+        try {
+            Folder inbox = store.getFolder("Inbox");
+            inbox = inbox.getFolder("sent-mail");
+            inbox.open(Folder.READ_ONLY);
+            FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
+            Message msg[] = inbox.search(delete);
+//            inbox.close(true);
+            return msg;
+        } catch (MessagingException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public Message[] getMessageDeleteInbox() {
+        try {
+            Folder inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_ONLY);
+            FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
+            Message msg[] = inbox.search(delete);
+//            inbox.close(true);
+            return msg;
+        } catch (MessagingException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    public Message[] getMessageDeleteSent() {
+        try {
+            Folder inbox = store.getFolder("Inbox");
+            inbox = inbox.getFolder("sent-mail");
+            inbox.open(Folder.READ_ONLY);
+            FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
+            Message msg[] = inbox.search(delete);
+//            inbox.close(true);
+            return msg;
+        } catch (MessagingException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
 }

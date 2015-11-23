@@ -8,12 +8,14 @@ package cs.handmail.login;
 import cs.handmail.Controller.TreeController;
 import cs.handmail.panelmail.ListPerson;
 import cs.handmail.mail.SessionEmail;
+import cs.handmail.panelmail.InBox;
 import cs.handmail.panelmail.InboxMail;
 import cs.handmail.panelmail.StatisticMail;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Timer;
 import java.util.TimerTask;
+import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -26,59 +28,101 @@ public class CenterMail extends javax.swing.JFrame {
     private StatisticMail statisticEmail;
     private SessionEmail sessionEmail;
     private TreeController treeCtr;
+    private JPanel rightComponet;
     private Timer timer;
+    public static final int CUSTOMER = 1;
+    public static final int STAFF = 2;
+    public static final int SENT = 3;
+    public static final int DELETEINBOX = 4;
+    public static final int DELETESENT = 5;
+    public static final int NOMAIL = -1;
+    public int flagsMail;
+
     /**
      * Creates new form CenterMail
+     *
+     * @param smail
      */
     public CenterMail(SessionEmail smail) {
         initComponents();
         sessionEmail = smail;
-        listPerson = new ListPerson(sessionEmail);
-        Email.setRightComponent(listPerson);
+        // add Tree
         treeCtr = new TreeController();
-        treeCtr.setTree(TreeMail,sessionEmail);
-        treeCtr.setModelCustomTree(treeCtr.getInboxUserMail());
+        treeCtr.setTree(TreeMail, sessionEmail);
+        treeCtr.setModelCustomTree();
         setTreeClick();
-        timer = new Timer();
-        timer.schedule(new TimerTaskTreeRequest(), 1200, 1200);
+        // add RightComponet
+        flagsMail = CUSTOMER;
+        rightComponet = new InBox(CUSTOMER, sessionEmail);
+        Email.setRightComponent(rightComponet);
+
     }
-    
-    void setTreeClick()
-    {
+
+    private void setTreeClick() {
         TreeMail.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e); //To change body of generated methods, choose Tools | Templates.
-                if(e.getClickCount()==2)
-                {
-                    System.out.println("thong tin in ra");
-                      try{
-                            DefaultMutableTreeNode node = (DefaultMutableTreeNode) TreeMail.getLastSelectedPathComponent();
-                            if(node==null) return;
-                            else{
-                                String nodeName= node.getUserObject().toString();
-                                nodeName = nodeName.substring(5, nodeName.length());
-                                if(node.getUserObject().toString().startsWith("INBOX"))
-                                {
-                                     Email.setRightComponent(new InboxMail(treeCtr.getStore()));
+                if (e.getClickCount() == 2) {
+                    try {
+                        DefaultMutableTreeNode node = (DefaultMutableTreeNode) TreeMail.getLastSelectedPathComponent();
+                        if (node == null) {
+                            return;
+                        } else {
+                            String nodeName = node.getUserObject().toString();
+                            // Xu ly
+                            if (nodeName.contains("Customer") && flagsMail != CUSTOMER) {
+                                if (flagsMail != NOMAIL) {
+                                    ((InBox) rightComponet).close();
                                 }
+                                flagsMail = CUSTOMER;
+                                rightComponet = new InBox(CUSTOMER, sessionEmail);
+                                Email.setRightComponent(rightComponet);
                             }
-                        }catch(Exception ex)
-                        {
-                            // xuwr ly xau hong
-                            ex.printStackTrace();
+                            if (nodeName.contains("Staff") && flagsMail != STAFF) {
+                                if (flagsMail != NOMAIL) {
+                                    ((InBox) rightComponet).close();
+                                }
+                                flagsMail = STAFF;
+                                rightComponet = new InBox(STAFF, sessionEmail);
+                                Email.setRightComponent(rightComponet);
+                            }
+                            if (nodeName.contains("Send") && flagsMail != SENT) {
+                                if (flagsMail != NOMAIL) {
+                                    ((InBox) rightComponet).close();
+                                }
+                                flagsMail = SENT;
+                                rightComponet = new InBox(SENT, sessionEmail);
+                                Email.setRightComponent(rightComponet);
+                            }
+                            if (nodeName.contains("Delete Inbox") && flagsMail != DELETEINBOX) {
+                                if (flagsMail != NOMAIL) {
+                                    ((InBox) rightComponet).close();
+                                }
+                                flagsMail = DELETEINBOX;
+                                rightComponet = new InBox(DELETEINBOX, sessionEmail);
+                                Email.setRightComponent(rightComponet);
+                            }
+                            if (nodeName.contains("Delete Send") && flagsMail != DELETEINBOX) {
+                                if (flagsMail != NOMAIL) {
+                                    ((InBox) rightComponet).close();
+                                }
+                                flagsMail = DELETESENT;
+                                rightComponet = new InBox(DELETESENT, sessionEmail);
+                                Email.setRightComponent(rightComponet);
+                            }
                         }
-                    
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
-            
         });
-        
     }
-    
+
     public void updateAcount() {
-        listPerson.updateAcount();
+        //  listPerson.updateAcount();
     }
 
     /**
@@ -190,16 +234,6 @@ public class CenterMail extends javax.swing.JFrame {
         Email.setRightComponent(listPerson);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
-    public class TimerTaskTreeRequest extends TimerTask
-    {
-
-        @Override
-        public void run() {
-            treeCtr.setModelCustomTree(treeCtr.getInboxUserMail());
-     //       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-        
-    }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane Email;
     private javax.swing.JScrollPane ScrollPane;

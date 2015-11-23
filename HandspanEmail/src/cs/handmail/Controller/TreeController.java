@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package cs.handmail.Controller;
 
 import cs.handmail.file.DataUserFile;
@@ -36,115 +35,84 @@ import javax.swing.tree.TreeModel;
  * @author Venus-NS
  */
 public class TreeController {
-    
+
     private TreeModel modelTree;
-    private JTree   tree;
-    private int inboxSeen=2;
+    private JTree tree;
     private DefaultMutableTreeNode root;
-    private DefaultMutableTreeNode newMess;
-    private DefaultMutableTreeNode inBox;
-    private DefaultMutableTreeNode sendBox;
+    private DefaultMutableTreeNode inbox;
+    private DefaultMutableTreeNode send;
+    private DefaultMutableTreeNode delete;
+    private DefaultMutableTreeNode deleteInbox;
+    private DefaultMutableTreeNode deleteSent;
+    private DefaultMutableTreeNode customer;
+    private DefaultMutableTreeNode staff;
     private Properties mPropertise;
     private SessionEmail session;
     private Store store;
-    
-    
-    public Store getStore()
-    {
+
+    public Store getStore() {
         return store;
     }
-    public void setTree(JTree tree, SessionEmail session)
-    {
+
+    public void setTree(JTree tree, SessionEmail session) {
         this.tree = tree;
-        tree.setCellRenderer(new DefaultTreeCellRenderer(){
-            private  Icon iconOpen = new ImageIcon(getClass().getClassLoader().getResource("image/mailOpen.png"));
-            private  Icon iconClose = new ImageIcon(getClass().getClassLoader().getResource("image/mailClose.png"));
-            private  Icon iconMailBox = new ImageIcon(getClass().getClassLoader().getResource("image/mailbox.png"));
+        tree.setCellRenderer(new DefaultTreeCellRenderer() {
+            Icon iconOpen = new ImageIcon(getClass().getClassLoader().getResource("image/mailOpen.png"));
+            Icon iconClose = new ImageIcon(getClass().getClassLoader().getResource("image/mailClose.png"));
+            Icon iconMailBox = new ImageIcon(getClass().getClassLoader().getResource("image/mailbox.png"));
+            Icon user = new ImageIcon(getClass().getClassLoader().getResource("image/user.png"));
+            Icon staff = new ImageIcon(getClass().getClassLoader().getResource("image/staff.png"));
+
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-               Component c = super.getTreeCellRendererComponent(tree, value,
+                Component c = super.getTreeCellRendererComponent(tree, value,
                         selected, expanded, leaf, row, hasFocus);
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-                if(node.equals(root)){
+                if (node.equals(root)) {
                     setIcon(iconMailBox);
-                }
-                else if(node.equals(newMess)||node.equals(inBox)||node.equals(sendBox) ) {
+                } else if (node.equals(inbox) || node.equals(send) || node.equals(delete)|| node.equals(deleteInbox)|| node.equals(deleteSent)) {
                     setIcon(iconClose);
+                } else if (node.equals(customer)) {
+                    setIcon(user);
+                } else {
+                    setIcon(staff);
                 }
-                
+
                 return this;
-               
-             
+
             }
-            
+
         });
         // get data 
         this.session = session;
         store = session.getStore();
         //setAdapterMail();
     }
-    
-    public void setModelCustomTree(int number)
-    {
-        try{
-            
-            
-            root = new DefaultMutableTreeNode("HandsMail");
-            newMess = new DefaultMutableTreeNode("NEW");
-            inBox = new DefaultMutableTreeNode("INBOX" + " (" + Integer.toString(number)+ ")");
-            sendBox = new DefaultMutableTreeNode("SENDBOX");
-            root.add(newMess);
-            root.add(inBox);
-            root.add(sendBox);
-          //  DefaultMutableTreeNode 
+
+    public void setModelCustomTree() {
+        try {
+
+            root = new DefaultMutableTreeNode("Handspan");
+            inbox = new DefaultMutableTreeNode("Inbox");
+            send = new DefaultMutableTreeNode("Send");
+            delete = new DefaultMutableTreeNode("Delete");
+            customer = new DefaultMutableTreeNode("Customer");
+            staff = new DefaultMutableTreeNode("Staff");
+            deleteInbox = new DefaultMutableTreeNode("Delete Inbox");
+            deleteSent = new DefaultMutableTreeNode("Delete Send");
+
+            root.add(inbox);
+            root.add(send);
+            root.add(delete);
+            inbox.add(customer);
+            inbox.add(staff);
+            delete.add(deleteInbox);
+            delete.add(deleteSent);
+            //  DefaultMutableTreeNode 
             modelTree = new DefaultTreeModel(root);
             tree.setModel(modelTree);
-        }catch(Exception ex)
-        {
-            ex.printStackTrace();
-        } 
-    }
-    
-    public void setAdapterMail()
-    {
-        try{
-            Vector<String> user = new DataUserFile().readDataUser();
-            Vector<String> host = new PropertiesFile().readFile();
-            SessionEmail session = new SessionEmail();
-            session.connectIMAPS(user.get(0), user.get(1), host.get(0), host.get(1));
-           // store = session.getStore();
-        }catch(Exception ex)
-        {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-    
-    public int getInboxUserMail(){
-        try{   
-            Folder folderInbox = store.getFolder("INBOX");
-            folderInbox.open(Folder.READ_ONLY);
-            FlagTerm ft = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
-            Message messages[] = folderInbox.search(ft);
-            return folderInbox.getUnreadMessageCount();
-        }catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
-        return 0;
-    }
-   
-    
-    
-    
-   
-    
-//    public static class UserInformation{
-//        public static String userName = "test1@handspan.com";
-//        public static String passWord = "h";
-//        public static String mailHost = "imap.gmail.com";
-//        public static String port     = "993";
-//        public static String protocol =  "imap";
-//        
-//    }
-    
+    }  
 }

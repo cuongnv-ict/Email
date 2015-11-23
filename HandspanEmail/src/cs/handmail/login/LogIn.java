@@ -211,7 +211,6 @@ public class LogIn extends javax.swing.JDialog {
             CenterMail centerMail = new CenterMail(sessionEmail);
             centerMail.setExtendedState(centerMail.getExtendedState() | JFrame.MAXIMIZED_BOTH);
             centerMail.setVisible(true);
-            centerMail.updateAcount();
         } else {
             JOptionPane.showMessageDialog(null, "Email, Password chưa chính xác", "LogIn", JOptionPane.ERROR_MESSAGE);
             return;
