@@ -39,6 +39,13 @@ public class ListPerson extends javax.swing.JPanel {
         sessionEmail = smail;
         tableListAcount = new TableListAcount();
         load.setVisible(false);
+        Thread d = new Thread() {
+            @Override
+            public void run() {
+                updateAcount();
+            }
+        };
+        d.start();
     }
 
     public void updateAcount() {

@@ -22,7 +22,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class CenterMail extends javax.swing.JFrame {
 
-    private ListPerson listPerson;
     private StatisticMail statisticEmail;
     private SessionEmail sessionEmail;
     private TreeController treeCtr;
@@ -224,12 +223,14 @@ public class CenterMail extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
+        flagsMail = NOMAIL;
         Email.setRightComponent(new StatisticMail(sessionEmail));
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
-        Email.setRightComponent(listPerson);
+        flagsMail = NOMAIL;
+        Email.setRightComponent(new ListPerson(sessionEmail));
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

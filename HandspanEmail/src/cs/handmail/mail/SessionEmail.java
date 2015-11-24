@@ -105,8 +105,6 @@ public class SessionEmail {
     public Map<String, Integer> addressEmail() {
         Map<String, Integer> mails = new TreeMap<>();
         try {
-            inbox = store.getFolder("Inbox");
-            inbox.open(Folder.READ_ONLY);
             Message messages[] = inbox.getMessages();
             for (Message message : messages) {
                 for (Address a : message.getFrom()) {
@@ -118,9 +116,7 @@ public class SessionEmail {
                     }
                 }
             }
-            inbox = inbox.getFolder("sent-mail");
-            inbox.open(Folder.READ_ONLY);
-            messages = inbox.getMessages();
+            messages = sent.getMessages();
             for (Message message : messages) {
                 for (Address a : message.getFrom()) {
                     String m = accuracyEmail.extraEmail(a.toString());
@@ -148,12 +144,10 @@ public class SessionEmail {
             Date maxDate = df1.parse(maxdt);
             SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.GT, minDate);
             SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.LT, maxDate);
-            inbox = store.getFolder("Inbox");
+            Folder temp = inbox;
             if (!isInbox) {
-                sent = inbox;
-                inbox = inbox.getFolder("sent-mail");
-            }
-            inbox.open(Folder.READ_ONLY);
+                temp = sent;
+            }         
             for (String key : mails.keySet()) {
 
                 AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
@@ -193,7 +187,7 @@ public class SessionEmail {
                 SearchTerm andTerm = new AndTerm(delete, olderThan);
                 andTerm = new AndTerm(andTerm, newerThan);
                 andTerm = new AndTerm(andTerm, addressTerm);
-                Message messages[] = inbox.search(andTerm);
+                Message messages[] = temp.search(andTerm);
                 map.put(key, messages);
             }
             return map;
@@ -205,8 +199,6 @@ public class SessionEmail {
 
     public Message[] getMessageCustomer() {
         try {
-            inbox = store.getFolder("Inbox");
-            inbox.open(Folder.READ_ONLY);
             AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
                 @Override
                 public boolean match(Message msg) {
@@ -236,8 +228,6 @@ public class SessionEmail {
 
     public Message[] getMessageStaff() {
         try {
-            inbox = store.getFolder("Inbox");
-            inbox.open(Folder.READ_ONLY);
             AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
                 @Override
                 public boolean match(Message msg) {
@@ -267,9 +257,6 @@ public class SessionEmail {
 
     public Message[] getMessageSent() {
         try {
-            inbox = store.getFolder("Inbox");
-            sent = inbox.getFolder("sent-mail");
-            inbox.open(Folder.READ_ONLY);
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
             Message msg[] = sent.search(delete);
             return msg;
@@ -280,9 +267,7 @@ public class SessionEmail {
     }
 
     public Message[] getMessageDeleteInbox() {
-        try {
-            inbox = store.getFolder("Inbox");
-            inbox.open(Folder.READ_ONLY);
+        try {          
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
             Message msg[] = inbox.search(delete);
             return msg;
@@ -293,10 +278,7 @@ public class SessionEmail {
     }
 
     public Message[] getMessageDeleteSent() {
-        try {
-            inbox = store.getFolder("Inbox");
-            sent = inbox.getFolder("sent-mail");
-            inbox.open(Folder.READ_ONLY);
+        try {          
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
             Message msg[] = sent.search(delete);
             return msg;
