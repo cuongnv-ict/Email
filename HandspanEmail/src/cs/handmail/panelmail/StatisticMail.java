@@ -8,6 +8,9 @@ package cs.handmail.panelmail;
 import cs.handmail.file.ListAcountFile;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListAcount;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ItemEvent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -15,6 +18,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 import javax.mail.Message;
 import javax.swing.JOptionPane;
+import javax.swing.table.TableCellRenderer;
 
 /**
  *
@@ -27,6 +31,7 @@ public class StatisticMail extends javax.swing.JPanel {
     private Properties properties;
     private TableListAcount tableListAcount;
     private Thread th;
+    private boolean flags;
 
     /**
      * Creates new form ListPerson
@@ -40,15 +45,21 @@ public class StatisticMail extends javax.swing.JPanel {
         tableListAcount = new TableListAcount();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
         Date date = new Date();
-        month.setSelectedIndex(date.getMonth());
-        year.setSelectedIndex(Integer.parseInt(simpleDateFormat.format(date)) - 2010);
+
         th = new Thread() {
             @Override
             public void run() {
                 statisticEmailAcount();
                 load.setVisible(false);
+                flags = true;
+                month.enable(true);
+                year.enable(true);
             }
         };
+        flags = false;
+        month.setSelectedIndex(date.getMonth());
+        year.setSelectedIndex(Integer.parseInt(simpleDateFormat.format(date)) - 2010);
+        flags = true;
         th.start();
     }
 
@@ -56,12 +67,12 @@ public class StatisticMail extends javax.swing.JPanel {
         properties = listAcountFile.readListAcount();
         if (properties != null) {
             Map<String, Integer> map = new TreeMap<>();
-            for(Object key: properties.keySet()){
+            for (Object key : properties.keySet()) {
                 String m = properties.getProperty(String.valueOf(key));
-                map.put(m,1);
+                map.put(m, 1);
             }
             int mon = month.getSelectedIndex() + 1;
-            int ye = year.getSelectedIndex() + 2010;  
+            int ye = year.getSelectedIndex() + 2010;
             Map<String, Message[]> request = sessionEmail.statisticAddressEmail(mon, ye, map, false);
             sessionEmail.closeInbox();
             sessionEmail.closeSend();
@@ -81,14 +92,21 @@ public class StatisticMail extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableAcount = new javax.swing.JTable();
+        tableAcount = new javax.swing.JTable(){
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column){
+
+                Component c = super.prepareRenderer(renderer, row, column);
+                c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);
+                return c;
+
+            }
+        };
         jPanel1 = new javax.swing.JPanel();
         textField1 = new java.awt.TextField();
         jLabel1 = new javax.swing.JLabel();
         month = new javax.swing.JComboBox<>();
         year = new javax.swing.JComboBox<>();
         load = new javax.swing.JLabel();
-        button1 = new java.awt.Button();
 
         tableAcount.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -102,6 +120,11 @@ public class StatisticMail extends javax.swing.JPanel {
             }
         ));
         jScrollPane1.setViewportView(tableAcount);
+        if (tableAcount.getColumnModel().getColumnCount() > 0) {
+            tableAcount.getColumnModel().getColumn(0).setMinWidth(50);
+            tableAcount.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableAcount.getColumnModel().getColumn(0).setMaxWidth(50);
+        }
 
         jPanel1.setBackground(java.awt.SystemColor.activeCaption);
         jPanel1.setPreferredSize(new java.awt.Dimension(419, 43));
@@ -112,17 +135,20 @@ public class StatisticMail extends javax.swing.JPanel {
         jLabel1.setText("Time:");
 
         month.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }));
-
-        year.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "2035", "2036", "2037", "2038", "2039", "2040" }));
-
-        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
-
-        button1.setLabel("Thống kê");
-        button1.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button1ActionPerformed(evt);
+        month.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                monthItemStateChanged(evt);
             }
         });
+
+        year.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030", "2031", "2032", "2033", "2034", "2035", "2036", "2037", "2038", "2039", "2040" }));
+        year.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                yearItemStateChanged(evt);
+            }
+        });
+
+        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -135,9 +161,7 @@ public class StatisticMail extends javax.swing.JPanel {
                 .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 220, Short.MAX_VALUE)
                 .addComponent(load)
                 .addGap(1, 1, 1)
                 .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -152,14 +176,10 @@ public class StatisticMail extends javax.swing.JPanel {
                 .addComponent(load, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -178,14 +198,28 @@ public class StatisticMail extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
+    private void monthItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_monthItemStateChanged
         // TODO add your handling code here:
-        runSelected();
-    }//GEN-LAST:event_button1ActionPerformed
+        if (evt.getStateChange() == ItemEvent.SELECTED && flags) {
+            runSelected();
+            // do something with object
+        }
+    }//GEN-LAST:event_monthItemStateChanged
+
+    private void yearItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_yearItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED && flags) {
+            runSelected();
+            // do something with object
+        }
+    }//GEN-LAST:event_yearItemStateChanged
 
     public void runSelected() {
         System.err.println("sdfdsfsdf");
         load.setVisible(true);
+        if (th.isAlive()) {
+            th.stop();
+        }
         th = new Thread() {
             @Override
             public void run() {
@@ -198,7 +232,6 @@ public class StatisticMail extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private java.awt.Button button1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

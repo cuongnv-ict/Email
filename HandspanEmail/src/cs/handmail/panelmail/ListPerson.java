@@ -14,7 +14,10 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import sun.reflect.generics.tree.Tree;
 import cs.handmail.login.AddAcount;
+import java.awt.Color;
+import java.awt.Component;
 import java.util.ArrayList;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 
 /**
@@ -88,7 +91,15 @@ public class ListPerson extends javax.swing.JPanel {
     private void initComponents() {
 
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableAcount = new javax.swing.JTable();
+        tableAcount = new javax.swing.JTable(){
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column){
+
+                Component c = super.prepareRenderer(renderer, row, column);
+                c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);
+                return c;
+
+            }
+        };
         jPanel1 = new javax.swing.JPanel();
         textField1 = new java.awt.TextField();
         load = new javax.swing.JLabel();
@@ -98,16 +109,36 @@ public class ListPerson extends javax.swing.JPanel {
 
         tableAcount.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "", "STT", "Email"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tableAcount);
+        if (tableAcount.getColumnModel().getColumnCount() > 0) {
+            tableAcount.getColumnModel().getColumn(0).setMinWidth(32);
+            tableAcount.getColumnModel().getColumn(0).setPreferredWidth(32);
+            tableAcount.getColumnModel().getColumn(0).setMaxWidth(32);
+            tableAcount.getColumnModel().getColumn(1).setMinWidth(50);
+            tableAcount.getColumnModel().getColumn(1).setPreferredWidth(50);
+            tableAcount.getColumnModel().getColumn(1).setMaxWidth(50);
+        }
 
         jPanel1.setBackground(java.awt.SystemColor.activeCaption);
         jPanel1.setPreferredSize(new java.awt.Dimension(419, 43));

@@ -8,9 +8,13 @@ package cs.handmail.panelmail;
 import cs.handmail.login.CenterMail;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListEmail;
+import java.awt.Color;
+import java.awt.Component;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
 
 /**
  *
@@ -110,7 +114,16 @@ public class InBox extends javax.swing.JPanel {
         load = new javax.swing.JLabel();
         title = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        table = new javax.swing.JTable();
+        table = new javax.swing.JTable(){
+            public Component prepareRenderer(TableCellRenderer renderer, int row, int column){
+
+                Component c = super.prepareRenderer(renderer, row, column);
+                c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);
+                c.setForeground(Color.BLACK);
+                return c;
+
+            }
+        };
 
         jPanel1.setBackground(java.awt.SystemColor.activeCaption);
         jPanel1.setForeground(java.awt.SystemColor.activeCaption);
@@ -143,16 +156,42 @@ public class InBox extends javax.swing.JPanel {
 
         table.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "", "STT", "Date", "From", "Subject"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(table);
+        if (table.getColumnModel().getColumnCount() > 0) {
+            table.getColumnModel().getColumn(0).setMinWidth(32);
+            table.getColumnModel().getColumn(0).setPreferredWidth(32);
+            table.getColumnModel().getColumn(0).setMaxWidth(32);
+            table.getColumnModel().getColumn(1).setMinWidth(50);
+            table.getColumnModel().getColumn(1).setPreferredWidth(50);
+            table.getColumnModel().getColumn(1).setMaxWidth(50);
+            table.getColumnModel().getColumn(2).setMinWidth(200);
+            table.getColumnModel().getColumn(2).setPreferredWidth(200);
+            table.getColumnModel().getColumn(2).setMaxWidth(200);
+            table.getColumnModel().getColumn(3).setMinWidth(250);
+            table.getColumnModel().getColumn(3).setPreferredWidth(250);
+            table.getColumnModel().getColumn(3).setMaxWidth(250);
+        }
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

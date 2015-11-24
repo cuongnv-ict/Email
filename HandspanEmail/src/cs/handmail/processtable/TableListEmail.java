@@ -32,8 +32,6 @@ public class TableListEmail {
 
     public void displayEmail(JTable table, Message[] message) {
         if (message != null) {
-
-            Object[] nameColumn = {"", "STT", "Date", "Form", "Subject"};
             ArrayList<Object[]> data = new ArrayList<>();
             int count = 1;
             for (int i = message.length - 1; i >= 0; i--) {
@@ -42,7 +40,12 @@ public class TableListEmail {
                     Object[] str = new Object[5];
                     str[0] = false;
                     str[1] = count;
-                    str[2] = df1.format(msg.getSentDate());
+                    if (msg.getSentDate() == null) {
+                        str[2] = "";
+                    } else {
+                        str[2] = df1.format(msg.getSentDate());
+                    }
+
                     int z = 0;
                     for (Address a : msg.getFrom()) {
                         String m = accuracyEmail.extraEmail(a.toString());
@@ -50,7 +53,7 @@ public class TableListEmail {
                             str[3] = m;
                             z++;
                         } else {
-                            str[3] = String.valueOf(str[3]).concat(";"+m);
+                            str[3] = String.valueOf(str[3]).concat(";" + m);
                         }
                         str[4] = msg.getSubject();
                         data.add(str);
@@ -60,29 +63,14 @@ public class TableListEmail {
                     Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            Object[][] rowColumn = new Object[data.size()][];
-            for (int i = 0; i < data.size(); i++) {
-                rowColumn[i] = data.get(i);
+            DefaultTableModel model = (DefaultTableModel) table.getModel();
+            int rowCount = model.getRowCount();
+            for (int i = rowCount - 1; i >= 0; i--) {
+                model.removeRow(i);
             }
-            DefaultTableModel model = new DefaultTableModel(rowColumn, nameColumn) {
-                Class[] types = new Class[]{
-                    java.lang.Boolean.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-                };
-
-                @Override
-                public Class getColumnClass(int columnIndex) {
-                    return types[columnIndex];
-                }
-                boolean[] canEdit = new boolean[]{
-                    true, false, false, false, false
-                };
-
-                @Override
-                public boolean isCellEditable(int rowIndex, int columnIndex) {
-                    return canEdit[columnIndex];
-                }
-            };
-            table.setModel(model);
+            for (int i = 0; i < data.size(); i++) {
+                model.addRow(data.get(i));
+            }
         }
     }
 }

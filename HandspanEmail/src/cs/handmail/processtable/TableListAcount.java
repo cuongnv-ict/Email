@@ -41,7 +41,6 @@ public class TableListAcount {
     }
 
     public void listAcount(JTable table, Map<String, Integer> map) {
-        Object[] nameColumn = {"", "STT", "Email"};
         ArrayList<Object[]> data = new ArrayList<Object[]>();
         int count = 1;
         for (String key : map.keySet()) {
@@ -52,32 +51,18 @@ public class TableListAcount {
             data.add(str);
             count++;
         }
-        Object[][] rowColumn = new Object[data.size()][];
-        for (int i = 0; i < data.size(); i++) {
-            rowColumn[i] = data.get(i);
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = model.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            model.removeRow(i);
         }
-        DefaultTableModel model = new DefaultTableModel(rowColumn, nameColumn) {
-            Class[] types = new Class[]{
-                java.lang.Boolean.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types[columnIndex];
-            }
-            boolean[] canEdit = new boolean[]{
-                true, false, false
-            };
-
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return canEdit[columnIndex];
-            }
-        };
-        table.setModel(model);
+        for (int i = 0; i < data.size(); i++) {
+            model.addRow(data.get(i));
+        }
 
     }
 
     public void statisticEmail(JTable table, Map<String, Integer> map, Map<String, Message[]> request, Map<String, Message[]> answer) {
-        Object[] nameColumn = {"STT", "Email", "Num. Email Requested", "Num. Email Answered", "Num. Email Answered in 24h", "AVG. Time (h:m)"};
         ArrayList<Object[]> data = new ArrayList<Object[]>();
         int count = 1;
         for (String key : map.keySet()) {
@@ -86,29 +71,20 @@ public class TableListAcount {
             str[1] = key;
             str[2] = request.get(key).length;
             str[3] = answer.get(key).length;
-            int []time = avgTime(request.get(key), answer.get(key));
+            int[] time = avgTime(request.get(key), answer.get(key));
             str[4] = time[0];
             str[5] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
             data.add(str);
             count++;
         }
-        Object[][] rowColumn = new Object[data.size()][];
-        for (int i = 0; i < data.size(); i++) {
-            rowColumn[i] = data.get(i);
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = model.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            model.removeRow(i);
         }
-        DefaultTableModel model = new DefaultTableModel(rowColumn, nameColumn) {
-
-            @Override
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return false;
-            }
-        };
-        table.setModel(model);
+        for (int i = 0; i < data.size(); i++) {
+            model.addRow(data.get(i));
+        }
     }
 
     public int[] avgTime(Message[] request, Message[] answer) {
@@ -163,10 +139,10 @@ public class TableListAcount {
                     for (Address a : ms.getAllRecipients()) {
                         if (address.equals(accuracyEmail.extraEmail(a.toString()))) {
                             int value = subTime(ms.getReceivedDate(), msg.getSentDate());
-                            if(value < (24* 60)){
+                            if (value < (24 * 60)) {
                                 time[0]++;
                             }
-                            total += value;                           
+                            total += value;
                             m = ms;
                             flags = true;
                             break;
