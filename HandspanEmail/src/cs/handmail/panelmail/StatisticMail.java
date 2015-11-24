@@ -50,7 +50,6 @@ public class StatisticMail extends javax.swing.JPanel {
             }
         };
         th.start();
-        th.stop();
     }
 
     private void statisticEmailAcount() {
@@ -62,10 +61,12 @@ public class StatisticMail extends javax.swing.JPanel {
                 map.put(m,1);
             }
             int mon = month.getSelectedIndex() + 1;
-            int ye = year.getSelectedIndex() + 2010;
-            System.err.println(mon + "*" + ye);
+            int ye = year.getSelectedIndex() + 2010;  
             Map<String, Message[]> request = sessionEmail.statisticAddressEmail(mon, ye, map, false);
+            sessionEmail.closeInbox();
+            sessionEmail.closeSend();
             Map<String, Message[]> answer = sessionEmail.statisticAddressEmail(mon, ye, map, true);
+            sessionEmail.closeInbox();
             tableListAcount.statisticEmail(tableAcount, map, request, answer);
         }
     }
@@ -91,13 +92,13 @@ public class StatisticMail extends javax.swing.JPanel {
 
         tableAcount.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "STT", "Email", "Num. Email Requested", "Num. Email Answered", "AVG. Time (h:m)"
+                "STT", "Email", "Num. Email Requested", "Num. Email Answered", "Num. Email Answered in 24h", "AVG. Time (h:m)"
             }
         ));
         jScrollPane1.setViewportView(tableAcount);

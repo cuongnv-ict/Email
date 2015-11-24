@@ -9,6 +9,7 @@ import cs.handmail.mail.AccuracyEmail;
 import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -76,17 +77,18 @@ public class TableListAcount {
     }
 
     public void statisticEmail(JTable table, Map<String, Integer> map, Map<String, Message[]> request, Map<String, Message[]> answer) {
-        Object[] nameColumn = {"STT", "Email", "Num. Email Requested", "Num. Email Answered", "AVG. Time (h:m)"};
+        Object[] nameColumn = {"STT", "Email", "Num. Email Requested", "Num. Email Answered", "Num. Email Answered in 24h", "AVG. Time (h:m)"};
         ArrayList<Object[]> data = new ArrayList<Object[]>();
         int count = 1;
         for (String key : map.keySet()) {
-            Object[] str = new Object[5];
+            Object[] str = new Object[6];
             str[0] = count;
             str[1] = key;
             str[2] = request.get(key).length;
             str[3] = answer.get(key).length;
-            int time = avgTime(request.get(key), answer.get(key));
-            str[4] = String.valueOf(time / 60 + ":" + time % 60);
+            int []time = avgTime(request.get(key), answer.get(key));
+            str[4] = time[0];
+            str[5] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
             data.add(str);
             count++;
         }
@@ -96,10 +98,12 @@ public class TableListAcount {
         }
         DefaultTableModel model = new DefaultTableModel(rowColumn, nameColumn) {
 
+            @Override
             public Class getColumnClass(int columnIndex) {
                 return java.lang.String.class;
             }
 
+            @Override
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return false;
             }
@@ -107,38 +111,29 @@ public class TableListAcount {
         table.setModel(model);
     }
 
-    public int avgTime(Message[] request, Message[] answer) {
+    public int[] avgTime(Message[] request, Message[] answer) {
         ArrayList<Message> re = new ArrayList<>();
         ArrayList<Message> an = new ArrayList<>();
-        for (Message msg : request) {
-            re.add(msg);
-        }
-        for (Message msg : answer) {
-            an.add(msg);
-        }
-        Collections.sort(re, new Comparator<Message>() {
-            @Override
-            public int compare(Message msg1, Message msg2) {
-
-                try {
-                    return msg1.getSentDate().compareTo(msg2.getSentDate());
-                } catch (MessagingException ex) {
-                    Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                return -1;
+        int time[] = new int[2];
+        time[0] = 0;
+        time[1] = 0;
+        re.addAll(Arrays.asList(request));
+        an.addAll(Arrays.asList(answer));
+        Collections.sort(re, (Message msg1, Message msg2) -> {
+            try {
+                return msg1.getSentDate().compareTo(msg2.getSentDate());
+            } catch (MessagingException ex) {
+                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return -1;
         });
-        Collections.sort(an, new Comparator<Message>() {
-            @Override
-            public int compare(Message msg1, Message msg2) {
-
-                try {
-                    return msg1.getReceivedDate().compareTo(msg2.getReceivedDate());
-                } catch (MessagingException ex) {
-                    Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                return -1;
+        Collections.sort(an, (Message msg1, Message msg2) -> {
+            try {
+                return msg1.getReceivedDate().compareTo(msg2.getReceivedDate());
+            } catch (MessagingException ex) {
+                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return -1;
         });
         int total = 0;
 
@@ -167,7 +162,11 @@ public class TableListAcount {
                 for (Message ms : an) {
                     for (Address a : ms.getAllRecipients()) {
                         if (address.equals(accuracyEmail.extraEmail(a.toString()))) {
-                            total += subTime(ms.getReceivedDate(), msg.getSentDate());
+                            int value = subTime(ms.getReceivedDate(), msg.getSentDate());
+                            if(value < (24* 60)){
+                                time[0]++;
+                            }
+                            total += value;                           
                             m = ms;
                             flags = true;
                             break;
@@ -188,11 +187,12 @@ public class TableListAcount {
                 Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return re.isEmpty() ? 0 : total / re.size();
+        time[1] = re.isEmpty() ? 0 : total / re.size();
+        return time;
     }
 
     public int subTime(Date t1, Date t2) {
-        System.err.println(t1+"-"+ t2);
+        System.err.println(t1 + "-" + t2);
         int day1, day2, h1, h2, min1, min2;
         day1 = t1.getDay();
         day2 = t2.getDay();

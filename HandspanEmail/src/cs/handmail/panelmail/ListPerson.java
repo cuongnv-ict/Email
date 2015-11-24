@@ -47,9 +47,12 @@ public class ListPerson extends javax.swing.JPanel {
             int state = JOptionPane.showConfirmDialog(null, "Danh sách tài khoản chưa tồn tại hoặc chưa cập nhật.\n Bạn có muốn cập nhật.", "Update Acount", JOptionPane.YES_NO_OPTION);
             if (state == JOptionPane.YES_OPTION) {
                 Thread th = new Thread() {
+                    @Override
                     public void run() {
                         load.setVisible(true);
                         Map<String, Integer> map = sessionEmail.addressEmail();
+                        sessionEmail.closeSend();
+                        sessionEmail.closeInbox();
                         tableListAcount.listAcount(tableAcount, map);
                         for (String key : map.keySet()) {
                             listAcountFile.addAcount(key);

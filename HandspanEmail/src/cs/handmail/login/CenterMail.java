@@ -9,12 +9,10 @@ import cs.handmail.Controller.TreeController;
 import cs.handmail.panelmail.ListPerson;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.panelmail.InBox;
-import cs.handmail.panelmail.InboxMail;
 import cs.handmail.panelmail.StatisticMail;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Timer;
-import java.util.TimerTask;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
