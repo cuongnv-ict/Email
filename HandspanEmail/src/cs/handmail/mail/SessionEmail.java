@@ -133,7 +133,9 @@ public class SessionEmail {
             SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.GT, minDate);
             SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.LT, maxDate);
             Folder inbox = store.getFolder("Inbox");
+            Folder sent = null;
             if (!isInbox) {
+                sent = inbox;
                 inbox = inbox.getFolder("sent-mail");
             }
             inbox.open(Folder.READ_ONLY);
@@ -181,7 +183,10 @@ public class SessionEmail {
                 Message messages[] = inbox.search(andTerm);
                 map.put(key, messages);
             }
-//            inbox.close(true);
+            inbox.close(true);
+            if(!isInbox){
+                sent.close(true);
+            }
             return map;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -215,7 +220,7 @@ public class SessionEmail {
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
             SearchTerm andTerm = new AndTerm(delete, addressTerm);
             Message msg[] = inbox.search(andTerm);
-//            inbox.close(true);
+            inbox.close(true);
             return msg;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -247,7 +252,7 @@ public class SessionEmail {
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
             SearchTerm andTerm = new AndTerm(delete, addressTerm);
             Message msg[] = inbox.search(andTerm);
-//            inbox.close(true);
+            inbox.close(true);
             return msg;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -258,11 +263,12 @@ public class SessionEmail {
     public Message[] getMessageSent() {
         try {
             Folder inbox = store.getFolder("Inbox");
-            inbox = inbox.getFolder("sent-mail");
+            Folder sent = inbox.getFolder("sent-mail");
             inbox.open(Folder.READ_ONLY);
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
-            Message msg[] = inbox.search(delete);
-//            inbox.close(true);
+            Message msg[] = sent.search(delete);
+            inbox.close(true);
+            sent.close(true);
             return msg;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -276,7 +282,7 @@ public class SessionEmail {
             inbox.open(Folder.READ_ONLY);
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
             Message msg[] = inbox.search(delete);
-//            inbox.close(true);
+            inbox.close(true);
             return msg;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -287,11 +293,12 @@ public class SessionEmail {
     public Message[] getMessageDeleteSent() {
         try {
             Folder inbox = store.getFolder("Inbox");
-            inbox = inbox.getFolder("sent-mail");
+            Folder sent = inbox.getFolder("sent-mail");
             inbox.open(Folder.READ_ONLY);
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
-            Message msg[] = inbox.search(delete);
-//            inbox.close(true);
+            Message msg[] = sent.search(delete);
+            inbox.close(true);
+            sent.close(true);
             return msg;
         } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
