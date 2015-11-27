@@ -71,7 +71,7 @@
             </Property>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;public Component prepareRenderer(TableCellRenderer renderer, int row, int column){&#xa;&#xa;        Component c = super.prepareRenderer(renderer, row, column);&#xa;        c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);&#xa;        return c;&#xa;&#xa;    }&#xa;}"/>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new javax.swing.JTable(){&#xa;    public Component prepareRenderer(TableCellRenderer renderer, int row, int column){&#xa;&#xa;        Component c = super.prepareRenderer(renderer, row, column);&#xa;        c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);&#xa;        c.setForeground(Color.BLACK);&#xa;        return c;&#xa;    }&#xa;}"/>
           </AuxValues>
         </Component>
       </SubComponents>

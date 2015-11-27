@@ -24,7 +24,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.mail.BodyPart;
 import javax.mail.Flags;
+import javax.mail.Multipart;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.mail.search.AndTerm;
 import javax.mail.search.ComparisonTerm;
 import javax.mail.search.FlagTerm;
@@ -55,22 +62,6 @@ public class SessionEmail {
         return store;
     }
 
-    public void closeInbox() {
-//        try {
-//            inbox.close(true);
-//        } catch (MessagingException ex) {
-//            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-    }
-
-    public void closeSend() {
-//        try {
-//            sent.close(true);
-//        } catch (MessagingException ex) {
-//            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-    }
-
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
             Properties pro = System.getProperties();
@@ -99,6 +90,43 @@ public class SessionEmail {
             return false;
         } catch (MessagingException ex) {
             return false;
+        }
+    }
+
+    public void sendMail(String mailTo, String[] mailCC, String subject, String content) {
+        String mailPort = "25";
+        Properties mProperties = System.getProperties();
+        mProperties.put("mail.imap.host", hostmail);
+        mProperties.put("mail.smtp.port", mailPort);
+        mProperties.put("mail.smtp.auth", "true");
+        mProperties.put("mail.store.protocol", "smtp");
+        mProperties.put("mail.smtp.starttls.enable", "true");
+        Session session = Session.getDefaultInstance(mProperties, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(email, password);
+            }
+        });
+        MimeMessage mailMessage = new MimeMessage(session);
+        try {
+            mailMessage.setSubject(subject);
+            mailMessage.setFrom(new InternetAddress(email));
+            mailMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mailTo));
+            BodyPart bodyMail = new MimeBodyPart();
+            bodyMail.setText(content);
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(bodyMail);
+            mailMessage.setContent(multipart);
+            Transport transport = session.getTransport("smtp");
+            transport.connect(hostmail, 25, email, password);
+            if (transport.isConnected()) {
+                System.err.println("Connected");
+            }
+            transport.sendMessage(mailMessage, mailMessage.getAllRecipients());
+            transport.close();
+            System.out.println("Email sent successfully.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -147,7 +175,7 @@ public class SessionEmail {
             Folder temp = inbox;
             if (!isInbox) {
                 temp = sent;
-            }         
+            }
             for (String key : mails.keySet()) {
 
                 AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
@@ -267,7 +295,7 @@ public class SessionEmail {
     }
 
     public Message[] getMessageDeleteInbox() {
-        try {          
+        try {
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
             Message msg[] = inbox.search(delete);
             return msg;
@@ -278,7 +306,7 @@ public class SessionEmail {
     }
 
     public Message[] getMessageDeleteSent() {
-        try {          
+        try {
             FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), true);
             Message msg[] = sent.search(delete);
             return msg;

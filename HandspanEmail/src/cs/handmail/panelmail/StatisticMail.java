@@ -73,11 +73,8 @@ public class StatisticMail extends javax.swing.JPanel {
             }
             int mon = month.getSelectedIndex() + 1;
             int ye = year.getSelectedIndex() + 2010;
-            Map<String, Message[]> request = sessionEmail.statisticAddressEmail(mon, ye, map, false);
-            sessionEmail.closeInbox();
-            sessionEmail.closeSend();
+            Map<String, Message[]> request = sessionEmail.statisticAddressEmail(mon, ye, map, false);     
             Map<String, Message[]> answer = sessionEmail.statisticAddressEmail(mon, ye, map, true);
-            sessionEmail.closeInbox();
             tableListAcount.statisticEmail(tableAcount, map, request, answer);
         }
     }
@@ -97,8 +94,8 @@ public class StatisticMail extends javax.swing.JPanel {
 
                 Component c = super.prepareRenderer(renderer, row, column);
                 c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);
+                c.setForeground(Color.BLACK);
                 return c;
-
             }
         };
         jPanel1 = new javax.swing.JPanel();

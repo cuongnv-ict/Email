@@ -5,7 +5,7 @@
  */
 package cs.handmail.panelmail;
 
-import cs.handmail.login.CenterMail;
+import cs.handmail.dailog.CenterMail;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListEmail;
 import java.awt.Color;

@@ -5,7 +5,7 @@
  */
 package cs.handmail.main;
 
-import cs.handmail.login.LogIn;
+import cs.handmail.dailog.LogIn;
 
 /**
  *

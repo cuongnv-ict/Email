@@ -13,7 +13,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import sun.reflect.generics.tree.Tree;
-import cs.handmail.login.AddAcount;
+import cs.handmail.dailog.AddAcount;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
@@ -61,8 +61,6 @@ public class ListPerson extends javax.swing.JPanel {
                     public void run() {
                         load.setVisible(true);
                         Map<String, Integer> map = sessionEmail.addressEmail();
-                        sessionEmail.closeSend();
-                        sessionEmail.closeInbox();
                         tableListAcount.listAcount(tableAcount, map);
                         for (String key : map.keySet()) {
                             listAcountFile.addAcount(key);
@@ -96,8 +94,8 @@ public class ListPerson extends javax.swing.JPanel {
 
                 Component c = super.prepareRenderer(renderer, row, column);
                 c.setBackground(row % 2 == 1 ? Color.LIGHT_GRAY : Color.WHITE);
+                c.setForeground(Color.BLACK);
                 return c;
-
             }
         };
         jPanel1 = new javax.swing.JPanel();
