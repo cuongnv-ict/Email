@@ -6,10 +6,14 @@
 package cs.handmail.panelmail;
 
 import cs.handmail.dailog.CenterMail;
+import cs.handmail.dailog.ReceiveMail;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListEmail;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
@@ -26,6 +30,7 @@ public class InBox extends javax.swing.JPanel {
     private SessionEmail sessionEmail;
     private TableListEmail tableListEmail;
     private boolean timeout;
+    private Message message[];
 
     /**
      * Creates new form InBox
@@ -39,6 +44,7 @@ public class InBox extends javax.swing.JPanel {
         sessionEmail = session;
         tableListEmail = new TableListEmail();
         timeout = true;
+        setTableDoubleClick();
         switch (this.flags) {
             case CenterMail.CUSTOMER:
                 title.setText("Customer");
@@ -76,7 +82,7 @@ public class InBox extends javax.swing.JPanel {
     }
 
     public void updateEmail() {
-        Message message[] = null;
+        message = null;
         switch (flags) {
             case CenterMail.CUSTOMER:
                 message = sessionEmail.getMessageCustomer();
@@ -101,6 +107,28 @@ public class InBox extends javax.swing.JPanel {
         timeout = false;
     }
 
+    /****
+     * click in row double click
+     */
+    
+    void setTableDoubleClick()
+    {
+        table.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                JTable table =(JTable) e.getSource();
+                Point p = e.getPoint();
+                int row = table.rowAtPoint(p);
+                if (e.getClickCount() == 2) {
+                    ReceiveMail receveiMail = new ReceiveMail(null, false,message[row],sessionEmail);
+                    receveiMail.show();
+                }
+            }
+            
+        });
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -166,7 +194,7 @@ public class InBox extends javax.swing.JPanel {
                 java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                true, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {

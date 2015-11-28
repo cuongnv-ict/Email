@@ -44,6 +44,9 @@ public class NewEmail extends javax.swing.JDialog {
     private String passWord;
     private String fileName;
     private String hostMail;
+    private Message message;
+    private boolean isReply;
+    private boolean isfoward;
     /**
      * Creates new form NewEmail
      */
@@ -61,6 +64,68 @@ public class NewEmail extends javax.swing.JDialog {
         hostMail = sessionEmail.getHost();
     }
 
+    public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session,Message mess,boolean reply,boolean foward) {
+        super(parent, modal);
+        initComponents();
+        sessionEmail = session;
+        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 200, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 250);
+        close.setVisible(false);
+        path.setVisible(false);
+        DataUserFile userFile = new DataUserFile();
+        Vector<String> temp = userFile.readDataUser();
+        userMail = temp.get(0);
+        passWord = temp.get(1);
+        hostMail = sessionEmail.getHost();
+        this.message = mess;
+        isReply = reply;
+        isfoward = foward;
+        if(reply)
+        {
+            setDataForReply();
+            tf_addr.setEditable(false);
+            tf_cc.setEditable(false);
+            tf_subject.setEditable(false);
+            attach.setVisible(false);
+        }
+        
+        else if (foward)
+        {
+            setDataForFoward();
+            tf_subject.setEditable(false);
+            tf_cc.setEditable(false);
+            attach.setVisible(false);
+            ta_message.setEditable(false);
+        }
+    }
+    /**
+     * set data for mail rep
+     */
+    void setDataForReply() 
+    {
+        try{
+            tf_subject.setText(message.getSubject());
+            tf_addr.setText(message.getReplyTo()[0].toString());
+            
+        }catch(MessagingException ex)
+        {
+            JOptionPane.showMessageDialog(null, "mail eror");
+            ex.printStackTrace();
+        }
+    }
+    
+    void setDataForFoward()
+    {
+        try{
+            tf_subject.setText(message.getSubject());
+            
+        }catch(MessagingException ex)
+        {
+            JOptionPane.showMessageDialog(null, "mail eror");
+            ex.printStackTrace();
+        }
+    }
+    
+    
     /****
      * thread for send mail
      */
@@ -87,6 +152,73 @@ public class NewEmail extends javax.swing.JDialog {
             }
         }
     });
+    
+    /***
+     * reply
+     */
+    Thread replyMailThread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+                try{
+                    Message replyMessage = new MimeMessage(session);
+                    replyMessage = (MimeMessage) message.reply(false);
+                    replyMessage.setFrom(new InternetAddress(userMail));
+                    replyMessage.setText(ta_message.getText());
+                    replyMessage.setReplyTo(message.getReplyTo());
+                    Transport transport = session.getTransport("smtp");
+                    transport.connect(hostMail,25,userMail,passWord);
+                    transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
+                    transport.close();
+                    JOptionPane.showMessageDialog(null,"send mail success" );
+         
+                }catch(RuntimeException ex)
+                {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+                }catch(MessagingException ex){
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+                }
+        }
+    });
+    /***
+     * Thread for foward
+     */
+    Thread fowardMailThread = new Thread(new Runnable() {
+
+        @Override
+        public void run() {
+                try{
+                    String from = InternetAddress.toString(message.getFrom());
+                    Message messFoward = new MimeMessage(session);
+                    messFoward.setRecipients(Message.RecipientType.TO,
+                    InternetAddress.parse(addrTo));
+                    messFoward.setSubject("Fwd: " + message.getSubject());
+                    messFoward.setFrom(new InternetAddress(from));
+                    MimeBodyPart messageBodyPart = new MimeBodyPart();
+                    Multipart multipart = new MimeMultipart();
+                    messageBodyPart.setContent(message, "message/rfc822");
+                    multipart.addBodyPart(messageBodyPart);
+                    messFoward.setContent(multipart);
+                    messFoward.saveChanges();
+                    Transport transport = session.getTransport("smtp");
+                    transport.connect(hostMail,25,userMail,passWord);
+                    transport.sendMessage(messFoward, messFoward.getAllRecipients());
+                    transport.close();
+                    JOptionPane.showMessageDialog(null,"send mail success" );
+         
+                }catch(RuntimeException ex)
+                {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+                }catch(MessagingException ex){
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+                }
+        }
+    });
+    
     
     /***
      * get data from text field and text area
@@ -301,9 +433,6 @@ public class NewEmail extends javax.swing.JDialog {
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            //            System.out.println("Selected file: " + selectedFile.getAbsolutePath());
-            //            String[] str = selectedFile.getAbsolutePath().split("\\");
-            
             path.setText(selectedFile.getName());
             pathFileAttach = selectedFile.getAbsolutePath();
             fileName = selectedFile.getName();
@@ -323,24 +452,45 @@ public class NewEmail extends javax.swing.JDialog {
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
         // TODO add your handling code here:
 //        sessionEmail.sendMail("nvcuongbkhnict@gmail.com",null,"Send Mail", "Success");
-        getTextFromUI();
-        setAdapter();
-        if(addrTo.equals("")||cc_addr.equals(""))
+        if(isfoward)
         {
-            if(subject.equals(""))
+            getTextFromUI();
+            if(sessionEmail.checkAddressMail(addrTo))
             {
-                int check = JOptionPane.showConfirmDialog(null, "your mail don't have dubject. Do you sure send this mail");
-                if(check == JOptionPane.YES_OPTION)
+                
+                setAdapter();
+                fowardMailThread.start();
+                dispose();
+            }
+            
+        }
+        else if(isReply)
+        {
+            getTextFromUI();
+            setAdapter();
+            replyMailThread.start();
+            dispose();
+        }
+        else{
+            getTextFromUI();
+            setAdapter();
+            if(addrTo.equals("")||cc_addr.equals(""))
+            {
+                if(subject.equals(""))
                 {
+                    int check = JOptionPane.showConfirmDialog(null, "your mail don't have dubject. Do you sure send this mail");
+                    if(check == JOptionPane.YES_OPTION)
+                    {
+                        sendMailThread.start();
+                         dispose();
+                    }
+                }else{
                     sendMailThread.start();
-                     dispose();
+                   dispose();
                 }
             }else{
-                sendMailThread.start();
-               dispose();
+                JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
             }
-        }else{
-            JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
         }
     }//GEN-LAST:event_button1ActionPerformed
 
