@@ -28,6 +28,7 @@ import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Multipart;
 import javax.mail.Transport;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
@@ -38,6 +39,7 @@ import javax.mail.search.FlagTerm;
 import javax.mail.search.ReceivedDateTerm;
 import javax.mail.search.SearchTerm;
 import javax.mail.search.AddressStringTerm;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -62,6 +64,10 @@ public class SessionEmail {
         return store;
     }
 
+    public String getHost(){
+        return hostmail;
+    }
+    
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
             Properties pro = System.getProperties();
@@ -92,8 +98,33 @@ public class SessionEmail {
             return false;
         }
     }
+    
+    /***
+     * 
+     * @return false is address not validate 
+     */
+    public boolean checkAddressMail(String addressMail){
+        try{
+            boolean isvali;
+            InternetAddress internetAddress = new InternetAddress(addressMail);
+            internetAddress.validate();
+            return true;
+        }catch(AddressException ex)
+        {   
+            JOptionPane.showMessageDialog(null, "email not validate");
+            return false;
+        }
+    }
 
-    public void sendMail(String mailTo, String[] mailCC, String subject, String content) {
+    /***
+     * sendMail
+     * @param mailTo
+     * @param mailCC
+     * @param subject
+     * @param content
+     * @return 
+     */
+    public Session sendMail() {
         String mailPort = "25";
         Properties mProperties = System.getProperties();
         mProperties.put("mail.imap.host", hostmail);
@@ -107,27 +138,7 @@ public class SessionEmail {
                 return new PasswordAuthentication(email, password);
             }
         });
-        MimeMessage mailMessage = new MimeMessage(session);
-        try {
-            mailMessage.setSubject(subject);
-            mailMessage.setFrom(new InternetAddress(email));
-            mailMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mailTo));
-            BodyPart bodyMail = new MimeBodyPart();
-            bodyMail.setText(content);
-            Multipart multipart = new MimeMultipart();
-            multipart.addBodyPart(bodyMail);
-            mailMessage.setContent(multipart);
-            Transport transport = session.getTransport("smtp");
-            transport.connect(hostmail, 25, email, password);
-            if (transport.isConnected()) {
-                System.err.println("Connected");
-            }
-            transport.sendMessage(mailMessage, mailMessage.getAllRecipients());
-            transport.close();
-            System.out.println("Email sent successfully.");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        return session;
     }
 
     public Map<String, Integer> addressEmail() {
