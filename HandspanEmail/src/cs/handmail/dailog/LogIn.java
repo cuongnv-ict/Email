@@ -79,6 +79,7 @@ public class LogIn extends javax.swing.JDialog {
 
         pass.setBackground(java.awt.SystemColor.controlLtHighlight);
         pass.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        pass.setEchoChar('*');
         pass.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 passKeyPressed(evt);

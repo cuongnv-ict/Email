@@ -30,7 +30,7 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel1" min="-2" pref="66" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textField1" max="32767" attributes="0"/>
+                      <Component id="tf_addr" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="1" max="-2" attributes="0">
@@ -39,7 +39,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="textField3" max="32767" attributes="0"/>
+                          <Component id="tf_subject" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="attach" min="-2" max="-2" attributes="0"/>
                               <EmptySpace type="unrelated" max="-2" attributes="0"/>
@@ -52,9 +52,9 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel2" min="-2" pref="66" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="textField2" max="32767" attributes="0"/>
+                      <Component id="tf_cc" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="textArea1" alignment="0" max="32767" attributes="0"/>
+                  <Component id="ta_message" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="13" max="-2" attributes="0"/>
           </Group>
@@ -65,21 +65,21 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="27" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="textField1" pref="32" max="32767" attributes="0"/>
+                  <Component id="tf_addr" pref="32" max="32767" attributes="0"/>
                   <Component id="jLabel1" max="32767" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="textField2" alignment="0" max="32767" attributes="0"/>
+                  <Component id="tf_cc" alignment="0" max="32767" attributes="0"/>
                   <Component id="jLabel2" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="textField3" alignment="0" max="32767" attributes="0"/>
+                  <Component id="tf_subject" alignment="0" max="32767" attributes="0"/>
                   <Component id="jLabel3" alignment="0" min="-2" pref="32" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="textArea1" min="-2" pref="247" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
+              <Component id="ta_message" min="-2" pref="247" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
                   <Component id="button1" max="32767" attributes="0"/>
@@ -93,9 +93,9 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="java.awt.TextArea" name="textArea1">
+    <Component class="java.awt.TextArea" name="ta_message">
     </Component>
-    <Component class="java.awt.TextField" name="textField1">
+    <Component class="java.awt.TextField" name="tf_addr">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
@@ -113,7 +113,7 @@
         <Property name="text" type="java.lang.String" value="CC:"/>
       </Properties>
     </Component>
-    <Component class="java.awt.TextField" name="textField2">
+    <Component class="java.awt.TextField" name="tf_cc">
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
@@ -123,9 +123,9 @@
         <Property name="text" type="java.lang.String" value="Subject:"/>
       </Properties>
     </Component>
-    <Component class="java.awt.TextField" name="textField3">
+    <Component class="java.awt.TextField" name="tf_subject">
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="textField3ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tf_subjectActionPerformed"/>
       </Events>
     </Component>
     <Component class="java.awt.Button" name="button1">
