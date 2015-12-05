@@ -10,6 +10,7 @@ import cs.handmail.mail.SessionEmail;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import static java.util.Arrays.stream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
@@ -21,6 +22,9 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+//import org.htmlcleaner.TagNode;
+import org.jsoup.Jsoup;
+import org.jsoup.examples.HtmlToPlainText;
 
 /**
  *
@@ -35,7 +39,7 @@ public class ReceiveMail extends javax.swing.JDialog {
     private String body;
     private String dateSend;
     private String addFrom;
-    private MimeBodyPart downloadPart;
+    private MimeBodyPart downloadPart=null;
     private boolean isAttachFile=false;
     /**
      * Creates new form ReceiveMail
@@ -91,17 +95,36 @@ public class ReceiveMail extends javax.swing.JDialog {
                     for(int j = 0; j< num ; j++){
                         MimeBodyPart temp =(MimeBodyPart) multipart.getBodyPart(j);
                         System.out.println(temp.getDisposition());
-                        if(Part.ATTACHMENT.equalsIgnoreCase(temp.getDisposition())||Part.INLINE.equalsIgnoreCase(temp.getDisposition())){
+                        if(Part.ATTACHMENT.equalsIgnoreCase(temp.getDisposition())){
                             downloadPart = temp;
                             isAttachFile = true;
                             break;
+                        }else if(temp.getContentType().contains("text/plain")&&temp.getContentType().contains("plain"))
+                        {
+                            body =(String) temp.getContent();
+                            ta_message.setText(body);
+                        }else if(temp.getContentType().contains("text/html")&&temp.getContentType().contains("html"))
+                        {
+                            body =(String) temp.getContent();
+//                            String plaintext = Jsoup.parse(body).text();
+                            String plaintext = new HtmlToPlainText().getPlainText(Jsoup.parse(body));
+                            ta_message.setText(plaintext);
+                            
+
                         }
                     }
                 }
-            else if(contentType.contains("text")){
+            else {
+                if(message.getContentType()!=null&&message.getContentType().contains("text/plain"))
+                {
+                    body =(String) message.getContent();
+                    ta_message.setText(body);
+                }else if(message.getContentType()!=null&&message.getContentType().contains("text/html")){
+                    body =(String) message.getContent();
+                    String plaintext = new HtmlToPlainText().getPlainText(Jsoup.parse(body));
+                    ta_message.setText(plaintext);
+                }
                 
-                            body =(String) message.getContent();
-                            ta_message.setText(body);
                 
             }
         }catch(Exception ex)
@@ -246,63 +269,26 @@ public class ReceiveMail extends javax.swing.JDialog {
            File selectedFile = fileChooser.getSelectedFile();
             pathFolder = selectedFile.getAbsolutePath();
             downloadFile.start();
+            JOptionPane.showMessageDialog(null, "download complete");
         }
     }//GEN-LAST:event_attachMouseClicked
 
     private void replyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_replyActionPerformed
         // TODO add your handling code here:
-        NewEmail email = new NewEmail(null, false, sessionEmail,message,true,false);
+        NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(),null,true,false);
         email.show();
     }//GEN-LAST:event_replyActionPerformed
 
     private void fowardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fowardActionPerformed
         // TODO add your handling code here:
-        NewEmail email = new NewEmail(null, false, sessionEmail,message,false,true);
+        NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(), downloadPart,false,true);
         email.show();
     }//GEN-LAST:event_fowardActionPerformed
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ReceiveMail.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ReceiveMail.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ReceiveMail.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ReceiveMail.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                ReceiveMail dialog = new ReceiveMail(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
-        });
-    }
-
+   
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel attach;
     private javax.swing.JButton foward;

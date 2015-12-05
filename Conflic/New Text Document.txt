@@ -2,3 +2,4 @@
 2/ Ghi de folder security trong moi truong java
 3/ De chay tu dau, Xoa folder Cache trong project
 4/ Neu khong dang nhap duoc, tat phan mem diet virus di
+5/ Add file jar trong html

@@ -56,7 +56,18 @@ public class SessionEmail {
     private AccuracyEmail accuracyEmail;
     private Folder inbox;
     private Folder sent;
+    private Session smtpSession=null;
 
+    public Session getsmtpSession()
+    {
+        return smtpSession;
+    }
+
+    public Folder getInboxFolder()
+    {
+        return inbox;
+    }
+    
     public SessionEmail() {
         accuracyEmail = new AccuracyEmail();
     }
@@ -80,7 +91,7 @@ public class SessionEmail {
             pro.put("mail.imap.port", port);
             pro.put("mail.store.protocol", "imap");
             pro.put("mail.imap.auth", "true");
-            Session session = Session.getDefaultInstance(pro, new Authenticator() {
+            Session session = Session.getInstance(pro, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
                     return new PasswordAuthentication(mail, pass);
@@ -156,13 +167,13 @@ public class SessionEmail {
         mProperties.put("mail.smtp.auth", "true");
         mProperties.put("mail.store.protocol", "smtp");
         mProperties.put("mail.smtp.starttls.enable", "true");
-        Session session = Session.getDefaultInstance(mProperties, new Authenticator() {
+        smtpSession = Session.getInstance(mProperties, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(email, password);
             }
         });
-        return session;
+        return smtpSession;
     }
 
     public Map<String, Integer> addressEmail() {
