@@ -121,7 +121,7 @@ public class InBox extends javax.swing.JPanel {
                 Point p = e.getPoint();
                 int row = table.rowAtPoint(p);
                 if (e.getClickCount() == 2) {
-                    ReceiveMail receveiMail = new ReceiveMail(null, false,message[row],sessionEmail);
+                    ReceiveMail receveiMail = new ReceiveMail(null, false,message[message.length-1-row],sessionEmail);
                     receveiMail.show();
                 }
             }
