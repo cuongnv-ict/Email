@@ -42,38 +42,15 @@ public class ListPerson extends javax.swing.JPanel {
         sessionEmail = smail;
         tableListAcount = new TableListAcount();
         load.setVisible(false);
-        Thread d = new Thread() {
-            @Override
-            public void run() {
-                updateAcount();
-            }
-        };
-        d.start();
+        updateAcount();
     }
 
-    public void updateAcount() {
+    private void updateAcount() {
         properties = listAcountFile.readListAcount();
-        if (properties == null) {
-            int state = JOptionPane.showConfirmDialog(null, "Danh sách tài khoản chưa tồn tại hoặc chưa cập nhật.\n Bạn có muốn cập nhật.", "Update Acount", JOptionPane.YES_NO_OPTION);
-            if (state == JOptionPane.YES_OPTION) {
-                Thread th = new Thread() {
-                    @Override
-                    public void run() {
-                        load.setVisible(true);
-                        Map<String, Integer> map = sessionEmail.addressEmail();
-                        tableListAcount.listAcount(tableAcount, map);
-                        for (String key : map.keySet()) {
-                            listAcountFile.addAcount(key);
-                        }
-                        load.setVisible(false);
-                    }
-                };
-                th.start();
-            }
-        } else {
+        if (properties != null) {
             Map<String, Integer> map = new TreeMap<>();
             for (Object key : properties.keySet()) {
-                map.put(properties.getProperty(String.valueOf(key)), 1);
+                map.put(String.valueOf(key), 1);
             }
             tableListAcount.listAcount(tableAcount, map);
         }
@@ -117,7 +94,7 @@ public class ListPerson extends javax.swing.JPanel {
                 java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                true, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -219,7 +196,7 @@ public class ListPerson extends javax.swing.JPanel {
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         // TODO add your handling code here:
-        AddAcount addAcount = new AddAcount(null, true, tableAcount);
+        AddAcount addAcount = new AddAcount(null, true, tableAcount, sessionEmail);
         addAcount.setVisible(true);
     }//GEN-LAST:event_jLabel2MouseClicked
 
@@ -240,10 +217,13 @@ public class ListPerson extends javax.swing.JPanel {
             properties = listAcountFile.readListAcount();
             tableListAcount = new TableListAcount();
             Map<String, Integer> map = new TreeMap<>();
-            for (Object key : properties.keySet()) {
-                map.put(properties.getProperty(String.valueOf(key)), 1);
+            if (properties != null) {
+                for (Object key : properties.keySet()) {
+                    map.put(String.valueOf(key), 1);
+                }
             }
             tableListAcount.listAcount(tableAcount, map);
+
         }
     }//GEN-LAST:event_jLabel4MouseClicked
 

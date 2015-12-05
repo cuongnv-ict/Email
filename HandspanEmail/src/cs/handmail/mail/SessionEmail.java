@@ -20,6 +20,7 @@ import javax.mail.Store;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,13 +65,17 @@ public class SessionEmail {
         return store;
     }
 
-    public String getHost(){
+    public String getHost() {
         return hostmail;
     }
-    
+
+    public String getEmail() {
+        return email;
+    }
+
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
-            Properties pro = System.getProperties();
+            Properties pro = new Properties();
             pro.put("mail.imap.host", host);
             pro.put("mail.imap.port", port);
             pro.put("mail.store.protocol", "imap");
@@ -93,30 +98,56 @@ public class SessionEmail {
             portmail = port;
             return true;
         } catch (NoSuchProviderException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } catch (MessagingException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }
-    
-    /***
-     * 
-     * @return false is address not validate 
+
+    public boolean checkMail(String mail, String pass) {
+        try {
+            Properties prop = new Properties();
+            prop.put("mail.imap.host", hostmail);
+            prop.put("mail.imap.port", portmail);
+            prop.put("mail.store.protocol", "imap");
+            prop.put("mail.imap.auth", "true");
+            Session session = Session.getInstance(prop, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(mail, pass);
+                }
+            });
+            Store ss = session.getStore();
+            ss.connect(hostmail, mail, pass);
+            ss.close();
+            return true;
+        } catch (NoSuchProviderException ex) {
+            // Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MessagingException ex) {
+            // Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+
+    /**
+     * *
+     *
+     * @return false is address not validate
      */
-    public boolean checkAddressMail(String addressMail){
-        try{
+    public boolean checkAddressMail(String addressMail) {
+        try {
             boolean isvali;
             InternetAddress internetAddress = new InternetAddress(addressMail);
             internetAddress.validate();
             return true;
-        }catch(AddressException ex)
-        {   
+        } catch (AddressException ex) {
             JOptionPane.showMessageDialog(null, "email not validate");
             return false;
         }
     }
 
-  
     public Session sendMail() {
         String mailPort = "25";
         Properties mProperties = System.getProperties();
@@ -224,6 +255,130 @@ public class SessionEmail {
             }
             return map;
         } catch (MessagingException | ParseException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return map;
+    }
+
+    public Map<String, Message[]> statisticAddressEmail(int month, int year, String mail, String pass) {
+        Map<String, Message[]> map = new HashMap<>();
+        try {
+
+            Properties prop = new Properties();
+            prop.put("mail.imap.host", hostmail);
+            prop.put("mail.imap.port", portmail);
+            prop.put("mail.store.protocol", "imap");
+            prop.put("mail.imap.auth", "true");
+            Session session = Session.getInstance(prop, new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(mail, pass);
+                }
+            });
+            Store ss = session.getStore();
+            ss.connect(hostmail, mail, pass);
+            Folder in = ss.getFolder("Inbox");
+            in.open(Folder.READ_ONLY);
+
+            SimpleDateFormat df1 = new SimpleDateFormat("MM/dd/yy");
+            String mindt = String.valueOf(month + "/01/" + year);
+            month++;
+            String maxdt = String.valueOf(month + "/01/" + year);
+            Date minDate = df1.parse(mindt);
+            Date maxDate = df1.parse(maxdt);
+            SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.GT, minDate);
+            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.LT, maxDate);
+            AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
+                @Override
+                public boolean match(Message msg) {
+                    try {
+                        boolean f1 = false;
+                        boolean f2 = false;
+                        for (Address a : msg.getFrom()) {
+                            String m = accuracyEmail.extraEmail(a.toString());
+                            if(email.equals(m)){
+                                f1 = true;
+                            }
+                            if(!accuracyEmail.isEmailHandspan(m)){
+                                f2 = true;
+                            }
+                        }
+                        if(f2){
+                            return true;
+                        }
+                        if(f1){
+                            String sub = msg.getSubject();
+                            if(sub != null && sub.startsWith("Fwd")){
+                                return true;
+                            }
+                        }
+                    } catch (MessagingException ex) {
+                        Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return false;
+                }
+            };
+
+            FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
+            SearchTerm andTerm = new AndTerm(delete, olderThan);
+            andTerm = new AndTerm(andTerm, newerThan);
+            andTerm = new AndTerm(andTerm, addressTerm);
+            Message messages[] = in.search(andTerm);
+            map.put("inbox", messages);
+
+            Folder se = in.getFolder("sent-mail");
+            se.open(Folder.READ_ONLY);
+            addressTerm = new AddressStringTerm("sent-mail") {
+                @Override
+                public boolean match(Message msg) {
+                    try {
+                        MimeMessage m = (MimeMessage) msg;
+                        if (m.getHeader("In-Reply-To", "In-Reply-To") == null) {
+                            return false;
+                        }
+                        boolean f1 = false;
+                        boolean f2 = false;
+                        for (Address a : msg.getRecipients(Message.RecipientType.TO)) {
+                            String add = accuracyEmail.extraEmail(a.toString());
+                            if (email.equals(add)) {
+                                f1 = true;
+                            }
+                            if (!accuracyEmail.isEmailHandspan(add)) {
+                                f2 = true;
+                            }
+
+                        }
+                        if (f2) {
+                            return true;
+                        }
+                        if (f1) {
+                            if (msg.getRecipients(Message.RecipientType.CC) == null) {
+                                return false;
+                            }
+                            for (Address a : msg.getRecipients(Message.RecipientType.CC)) {
+                                String add = accuracyEmail.extraEmail(a.toString());
+                                if (!accuracyEmail.isEmailHandspan(add)) {
+                                    return true;
+                                }
+                            }
+                        }
+                    } catch (MessagingException ex) {
+                        Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    return false;
+                }
+            };
+            andTerm = new AndTerm(delete, olderThan);
+            andTerm = new AndTerm(andTerm, newerThan);
+            andTerm = new AndTerm(andTerm, addressTerm);
+            messages = se.search(andTerm);
+            map.put("sent", messages);
+            ss.close();
+        } catch (ParseException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (NoSuchProviderException ex) {
+            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (MessagingException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
         }
         return map;

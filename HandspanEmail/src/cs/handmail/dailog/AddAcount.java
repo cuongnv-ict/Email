@@ -7,6 +7,7 @@ package cs.handmail.dailog;
 
 import cs.handmail.file.ListAcountFile;
 import cs.handmail.mail.AccuracyEmail;
+import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListAcount;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
@@ -23,13 +24,15 @@ import javax.swing.JTable;
 public class AddAcount extends javax.swing.JDialog {
 
     private JTable table;
+    private SessionEmail sessionEmail;
 
     /**
      * Creates new form AddAcount
      */
-    public AddAcount(java.awt.Frame parent, boolean modal, JTable table) {
+    public AddAcount(java.awt.Frame parent, boolean modal, JTable table, SessionEmail session) {
         super(parent, modal);
         initComponents();
+        sessionEmail = session;
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 200, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 150);
         this.table = table;
     }
@@ -43,77 +46,120 @@ public class AddAcount extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        text = new java.awt.TextField();
-        button1 = new java.awt.Button();
+        email = new java.awt.TextField();
+        cancel = new java.awt.Button();
+        pass = new java.awt.TextField();
+        add = new java.awt.Button();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Add Acount");
         setResizable(false);
 
-        text.addKeyListener(new java.awt.event.KeyAdapter() {
+        email.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                textKeyPressed(evt);
+                emailKeyPressed(evt);
             }
         });
 
-        button1.setLabel("Thêm");
-        button1.addActionListener(new java.awt.event.ActionListener() {
+        cancel.setLabel("Cancel");
+        cancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                button1ActionPerformed(evt);
+                cancelActionPerformed(evt);
             }
         });
-        button1.addKeyListener(new java.awt.event.KeyAdapter() {
+
+        pass.setEchoChar('*');
+        pass.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
-                button1KeyPressed(evt);
+                passKeyPressed(evt);
             }
         });
+
+        add.setLabel("Add");
+        add.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setText("Password");
+
+        jLabel2.setText("Email");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(text, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(button1, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
-                .addContainerGap())
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(cancel, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, 76, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(pass, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(email, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(14, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(button1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(text, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(28, 28, 28)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(email, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(10, 10, 10)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(pass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(cancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(add, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14))
         );
 
-        button1.getAccessibleContext().setAccessibleName("Th");
+        cancel.getAccessibleContext().setAccessibleName("Th");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
-        // TODO add your handling code here:
-        access();
-    }//GEN-LAST:event_button1ActionPerformed
-
-    private void textKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_textKeyPressed
+    private void emailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_emailKeyPressed
         // TODO add your handling code here:
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             access();
         }
-    }//GEN-LAST:event_textKeyPressed
+    }//GEN-LAST:event_emailKeyPressed
 
-    private void button1KeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_button1KeyPressed
+    private void passKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            access();
+        }
+    }//GEN-LAST:event_passKeyPressed
+
+    private void cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_cancelActionPerformed
+
+    private void addActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addActionPerformed
         // TODO add your handling code here:
         access();
-    }//GEN-LAST:event_button1KeyPressed
+    }//GEN-LAST:event_addActionPerformed
 
     public void access() {
-        String m = text.getText();
+        String m = email.getText();
+        String p = pass.getText();
         m = m.trim();
+        p = p.trim();
         if (m.equals("")) {
             JOptionPane.showMessageDialog(null, "Bạn chưa điền địa chỉ email.", "Add Acount", JOptionPane.INFORMATION_MESSAGE);
             return;
@@ -128,19 +174,36 @@ public class AddAcount extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null, "Email đã tồn tại.", "Add Acount", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        listAcountFile.addAcount(m);
+        if (m.equals(sessionEmail.getEmail())) {
+            JOptionPane.showMessageDialog(null, "Không thể thêm Email đăng nhập vào danh sách.", "Add Acount", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (p.equals("")) {
+            JOptionPane.showMessageDialog(null, "Bạn chưa điền password.", "Add Acount", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        if (!sessionEmail.checkMail(m, p)) {
+            JOptionPane.showMessageDialog(null, "Email/Password không đúng.", "Add Acount", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        listAcountFile.addAcount(m, p);
         Properties properties = listAcountFile.readListAcount();
         TableListAcount tableListAcount = new TableListAcount();
         Map<String, Integer> map = new TreeMap<>();
-        for (Object key : properties.keySet()) {
-            map.put(properties.getProperty(String.valueOf(key)), 1);
-        }
+        properties.keySet().stream().forEach((key) -> {
+            map.put(String.valueOf(key), 1);
+        });
         tableListAcount.listAcount(table, map);
         this.dispose();
     }
 
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private java.awt.Button button1;
-    private java.awt.TextField text;
+    private java.awt.Button add;
+    private java.awt.Button cancel;
+    private java.awt.TextField email;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private java.awt.TextField pass;
     // End of variables declaration//GEN-END:variables
 }

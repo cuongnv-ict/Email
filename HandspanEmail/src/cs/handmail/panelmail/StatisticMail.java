@@ -5,6 +5,7 @@
  */
 package cs.handmail.panelmail;
 
+import cs.handmail.file.DataUserFile;
 import cs.handmail.file.ListAcountFile;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListAcount;
@@ -32,6 +33,7 @@ public class StatisticMail extends javax.swing.JPanel {
     private TableListAcount tableListAcount;
     private Thread th;
     private boolean flags;
+    private DataUserFile dataUserFile;
 
     /**
      * Creates new form ListPerson
@@ -43,6 +45,7 @@ public class StatisticMail extends javax.swing.JPanel {
         listAcountFile = new ListAcountFile();
         sessionEmail = smail;
         tableListAcount = new TableListAcount();
+        dataUserFile = new DataUserFile();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY");
         Date date = new Date();
 
@@ -66,16 +69,15 @@ public class StatisticMail extends javax.swing.JPanel {
     private void statisticEmailAcount() {
         properties = listAcountFile.readListAcount();
         if (properties != null) {
-            Map<String, Integer> map = new TreeMap<>();
-            for (Object key : properties.keySet()) {
-                String m = properties.getProperty(String.valueOf(key));
-                map.put(m, 1);
-            }
             int mon = month.getSelectedIndex() + 1;
             int ye = year.getSelectedIndex() + 2010;
-            Map<String, Message[]> request = sessionEmail.statisticAddressEmail(mon, ye, map, false);     
-            Map<String, Message[]> answer = sessionEmail.statisticAddressEmail(mon, ye, map, true);
-            tableListAcount.statisticEmail(tableAcount, map, request, answer);
+            int id = 1;
+            tableListAcount.clearTable(tableAcount);
+            for (Object key : properties.keySet()) {
+                Map<String, Message[]> msgs = sessionEmail.statisticAddressEmail(mon, ye, String.valueOf(key),dataUserFile.decryptPass(String.valueOf(properties.get(key))));
+                tableListAcount.statisticEmail(tableAcount, msgs, String.valueOf(key), id);
+                id++;
+            }
         }
     }
 

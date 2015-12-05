@@ -8,6 +8,7 @@ package cs.handmail.processtable;
 import cs.handmail.mail.AccuracyEmail;
 import java.awt.Component;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -22,6 +23,7 @@ import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.internet.MimeMessage;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -85,6 +87,92 @@ public class TableListAcount {
         for (int i = 0; i < data.size(); i++) {
             model.addRow(data.get(i));
         }
+    }
+
+    public void clearTable(JTable table) {
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = model.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            model.removeRow(i);
+        }
+    }
+
+    public void statisticEmail(JTable table, Map<String, Message[]> msgs, String mail, int id) {
+        Object[] str = new Object[6];
+        str[0] = id;
+        str[1] = mail;
+        str[2] = msgs.get("inbox") == null ? 0 : msgs.get("inbox").length;
+        str[3] = msgs.get("sent") == null ? 0 : msgs.get("sent").length;
+        int[] time = avgTime(msgs);
+        str[4] = time[0];
+        str[5] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        model.addRow(str);
+    }
+
+    public int[] avgTime(Map<String, Message[]> msgs) {
+        int time[] = new int[2];
+        time[0] = 0;
+        time[1] = 0;
+        ArrayList<Message> re = new ArrayList<>();
+        ArrayList<Message> an = new ArrayList<>();
+        if (msgs.get("inbox") != null) {
+            re.addAll(Arrays.asList(msgs.get("inbox")));
+        }
+        if (msgs.get("sent") != null) {
+            an.addAll(Arrays.asList(msgs.get("sent")));
+        }
+        int total = 0;
+        for (Message reMSG : re) {
+            try {
+                MimeMessage msg1 = (MimeMessage) reMSG;
+                String idMSG = msg1.getMessageID();
+                Message m = null;
+                Date d1 = null;
+                Date d2 = null;
+                int value = 0;
+                boolean isF = true;
+                d1 = reMSG.getReceivedDate();
+                for (Message anMSG : an) {
+                    MimeMessage msg2 = (MimeMessage) anMSG;
+                    String rep = msg2.getHeader("In-Reply-To", "In-Reply-To");
+                    if (rep.equals(idMSG)) {
+                        d2 = anMSG.getSentDate();
+                        if (d1 == null) {
+                            d1 = new Date();
+                            d2 = new Date();
+                        }
+                        if (d2 == null) {
+                            d2 = new Date();
+                        }
+                        value = subTime(d2, d1);
+                        if (value < (24 * 60)) {
+                            time[0]++;
+                        }
+                        isF = false;
+                        m = anMSG;
+                        break;
+                    }
+                }
+                if (isF) {
+                    if (d1 == null) {
+                        d1 = new Date();
+                        d2 = new Date();
+                    }
+                    if (d2 == null) {
+                        d2 = new Date();
+                    }
+                    value = subTime(d2, d1);
+                } else {
+                    an.remove(m);
+                }
+                total += value;
+            } catch (MessagingException ex) {
+                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        time[1] = re.isEmpty() ? 0 : total / re.size();
+        return time;
     }
 
     public int[] avgTime(Message[] request, Message[] answer) {
@@ -168,14 +256,16 @@ public class TableListAcount {
     }
 
     public int subTime(Date t1, Date t2) {
-        System.err.println(t1 + "-" + t2);
+        SimpleDateFormat dt = new SimpleDateFormat("dd-HH-mm-ss");
+        String s1[] = dt.format(t1).split("-");
+        String s2[] = dt.format(t2).split("-");
         int day1, day2, h1, h2, min1, min2;
-        day1 = t1.getDay();
-        day2 = t2.getDay();
-        h1 = t1.getHours();
-        h2 = t2.getHours();
-        min1 = t1.getMinutes();
-        min2 = t2.getMinutes();
+        day1 = Integer.parseInt(s1[0]);
+        day2 = Integer.parseInt(s2[0]);
+        h1 = Integer.parseInt(s1[1]);
+        h2 = Integer.parseInt(s2[1]);
+        min1 = Integer.parseInt(s1[2]);
+        min2 = Integer.parseInt(s2[2]);
         return ((day1 - day2) * 24 + h1 - h2) * 60 + (min1 - min2);
     }
 }

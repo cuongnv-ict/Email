@@ -30,9 +30,11 @@ import javax.swing.JOptionPane;
 public class ListAcountFile {
 
     private String filePath = "Cache/acounts.properties";
+    private DataUserFile dataUserFile;
 
     public ListAcountFile() {
         File cache = new File("Cache");
+        dataUserFile = new DataUserFile();
         if (!cache.exists()) {
             cache.mkdir();
         }
@@ -60,7 +62,7 @@ public class ListAcountFile {
         return null;
     }
 
-    public void addAcount(String mail) {
+    public void addAcount(String mail, String pass) {
         try {
             int id = 1;
 
@@ -68,25 +70,8 @@ public class ListAcountFile {
             FileOutputStream fileOutPutStream = new FileOutputStream(filePath);
             if (properties == null) {
                 properties = new Properties();
-            } else {
-//                id = properties.size() + 1;
-                ArrayList<Integer> idKey = new ArrayList<>();
-                for (Object key : properties.keySet()) {
-                    idKey.add(Integer.parseInt(String.valueOf(key)));
-                }
-                Collections.sort(idKey);
-                for (int i = 0; i < idKey.size();) {
-                    if (id < idKey.get(i)) {
-                        break;
-                    } else if (id == idKey.get(i)) {
-                        id++;
-                        i++;
-                    } else {
-                        i++;
-                    }
-                }
             }
-            properties.setProperty(String.valueOf(id), mail);
+            properties.setProperty(mail, dataUserFile.encryptPass(pass));
             properties.store(fileOutPutStream, null);
             fileOutPutStream.close();
         } catch (IOException io) {
@@ -100,12 +85,7 @@ public class ListAcountFile {
             FileOutputStream fileOutPutStream = new FileOutputStream(filePath);
             if (properties != null) {
                 for (String mail : mails) {
-                    for (Object key : properties.keySet()) {
-                        if (mail.equals(properties.getProperty(String.valueOf(key)))) {
-                            properties.remove(key, mail);
-                            break;
-                        }
-                    }
+                    properties.remove(mail,properties.get(mail));
                 }
                 properties.store(fileOutPutStream, null);
                 fileOutPutStream.close();
@@ -120,10 +100,8 @@ public class ListAcountFile {
     public boolean isExistsAcount(String mail) {
         Properties properties = readListAcount();
         if (properties != null) {
-            for (Object key : properties.keySet()) {
-                if (mail.equals(properties.getProperty(String.valueOf(key)))) {
-                    return true;
-                }
+            if(properties.get(mail)!= null){
+                return true;
             }
         }
         return false;
