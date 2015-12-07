@@ -471,35 +471,35 @@ public class NewEmail extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        ta_message = new java.awt.TextArea();
-        tf_addr = new java.awt.TextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        tf_cc = new java.awt.TextField();
         jLabel3 = new javax.swing.JLabel();
-        tf_subject = new java.awt.TextField();
         button1 = new java.awt.Button();
         attach = new javax.swing.JLabel();
         close = new javax.swing.JLabel();
         path = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ta_message = new javax.swing.JTextArea();
+        tf_subject = new javax.swing.JTextField();
+        tf_cc = new javax.swing.JTextField();
+        tf_addr = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(460, 465));
         setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel1.setText("To:");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 11, 66, 32));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel2.setText("CC:");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 51, 66, 32));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel3.setText("Subject:");
-
-        tf_subject.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tf_subjectActionPerformed(evt);
-            }
-        });
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 90, -1, 32));
 
         button1.setBackground(java.awt.SystemColor.activeCaption);
         button1.setLabel("Send");
@@ -508,6 +508,7 @@ public class NewEmail extends javax.swing.JDialog {
                 button1ActionPerformed(evt);
             }
         });
+        getContentPane().add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, 67, 25));
 
         attach.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Attach-icon.png"))); // NOI18N
         attach.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -515,6 +516,7 @@ public class NewEmail extends javax.swing.JDialog {
                 attachMouseClicked(evt);
             }
         });
+        getContentPane().add(attach, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
 
         close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/clsoe.png"))); // NOI18N
         close.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -522,70 +524,28 @@ public class NewEmail extends javax.swing.JDialog {
                 closeMouseClicked(evt);
             }
         });
+        getContentPane().add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 440, -1, 25));
+        getContentPane().add(path, new org.netbeans.lib.awtextra.AbsoluteConstraints(144, 395, 304, 25));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tf_addr, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(button1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tf_subject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(attach)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(close)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(path, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tf_cc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(ta_message, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(13, 13, 13))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_addr, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_cc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_subject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addComponent(ta_message, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(button1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(attach, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(close, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(path, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+        ta_message.setColumns(20);
+        ta_message.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        ta_message.setLineWrap(true);
+        ta_message.setRows(5);
+        jScrollPane1.setViewportView(ta_message);
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 438, 300));
+
+        tf_subject.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_subject, new org.netbeans.lib.awtextra.AbsoluteConstraints(87, 92, 361, 32));
+
+        tf_cc.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_cc, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 53, 362, 31));
+
+        tf_addr.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_addr, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 13, 362, 32));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tf_subjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_subjectActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tf_subjectActionPerformed
 
     private void attachMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_attachMouseClicked
         JFileChooser fileChooser = new JFileChooser();
@@ -660,8 +620,8 @@ public class NewEmail extends javax.swing.JDialog {
             if(isReply)
             {
                     String mess= "Quoting " + message.getReplyTo()[0].toString() + ":" +System.getProperty("line.separator")+ "  " + System.getProperty("line.separator");
-                    messInfo = messInfo.replace(System.getProperty("line.separator"),System.getProperty("line.separator") + "    " + ">");
-                    mess = mess  + "    " + ">" + messInfo;
+//                    messInfo = messInfo.replace(System.getProperty("line.separator"),System.getProperty("line.separator") + "    " + ">");
+//                    mess = mess  + "    " + ">" + messInfo;
                     return mess;
             }
             else if(isfoward)
@@ -693,10 +653,11 @@ public class NewEmail extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel path;
-    private java.awt.TextArea ta_message;
-    private java.awt.TextField tf_addr;
-    private java.awt.TextField tf_cc;
-    private java.awt.TextField tf_subject;
+    private javax.swing.JTextArea ta_message;
+    private javax.swing.JTextField tf_addr;
+    private javax.swing.JTextField tf_cc;
+    private javax.swing.JTextField tf_subject;
     // End of variables declaration//GEN-END:variables
 }
