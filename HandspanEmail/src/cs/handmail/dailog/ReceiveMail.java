@@ -8,6 +8,8 @@ package cs.handmail.dailog;
 
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.panelmail.InBox;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -44,6 +46,8 @@ public class ReceiveMail extends javax.swing.JDialog {
     private boolean isAttachFile=false;
     public int numberMess;
     private InBox parentFream;
+    private boolean isReply=false;
+    private boolean isFoward=false;
     /**
      * Creates new form ReceiveMail
      */
@@ -253,7 +257,7 @@ public class ReceiveMail extends javax.swing.JDialog {
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-           File selectedFile = fileChooser.getSelectedFile();
+            File selectedFile = fileChooser.getSelectedFile();
             pathFolder = selectedFile.getAbsolutePath();
             downloadFile.start();
             JOptionPane.showMessageDialog(null, "download complete");
@@ -262,14 +266,43 @@ public class ReceiveMail extends javax.swing.JDialog {
 
     private void replyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_replyActionPerformed
         // TODO add your handling code here:
-        NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(),null,true,false);
-        email.show();
+        if(!isReply){
+            NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(),null,true,false);
+            isReply = true;
+            email.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
+                    isReply = false;
+                }
+                
+            });
+            email.show();
+        }else{
+            JOptionPane.showMessageDialog(null, "reply window opened");
+        }
     }//GEN-LAST:event_replyActionPerformed
 
     private void fowardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fowardActionPerformed
         // TODO add your handling code here:
-        NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(), downloadPart,false,true);
-        email.show();
+        if(!isFoward)
+        {
+            NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(), downloadPart,false,true);
+            isFoward = true;
+            email.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
+                    isFoward = false;
+                }
+                
+            });
+            email.show();
+        }else{
+            JOptionPane.showMessageDialog(null, "foward window opened");
+        }
     }//GEN-LAST:event_fowardActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed

@@ -218,6 +218,7 @@ public class NewEmail extends javax.swing.JDialog {
                     replyMessage.setFrom(new InternetAddress(userMail));
                     replyMessage.setText(ta_message.getText());
                     replyMessage.setReplyTo(message.getReplyTo());
+                    if(cc_addr!=null||!cc_addr.equals(""))
                     replyMessage.addRecipient(Message.RecipientType.CC, new InternetAddress(cc_addr));
                     replyMessage.setFlag(Flags.Flag.SEEN, true);
                     replyMessage.setSentDate(new Date());            
