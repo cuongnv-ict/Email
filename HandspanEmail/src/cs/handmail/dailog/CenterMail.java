@@ -166,7 +166,7 @@ public class CenterMail extends javax.swing.JFrame {
 
         jMenu1.setText("Systems");
 
-        jMenuItem5.setText("New Email");
+        jMenuItem5.setText("Mail mới");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem5ActionPerformed(evt);

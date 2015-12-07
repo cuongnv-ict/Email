@@ -7,6 +7,7 @@
 package cs.handmail.dailog;
 
 import cs.handmail.mail.SessionEmail;
+import cs.handmail.panelmail.InBox;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +24,6 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-//import org.htmlcleaner.TagNode;
 import org.jsoup.Jsoup;
 import org.jsoup.examples.HtmlToPlainText;
 
@@ -42,6 +42,8 @@ public class ReceiveMail extends javax.swing.JDialog {
     private String addFrom;
     private MimeBodyPart downloadPart=null;
     private boolean isAttachFile=false;
+    public int numberMess;
+    private InBox parentFream;
     /**
      * Creates new form ReceiveMail
      */
@@ -49,10 +51,11 @@ public class ReceiveMail extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
     }
-
-    public ReceiveMail(java.awt.Frame parent, boolean modal, Message message, SessionEmail session){
+    
+    public ReceiveMail(java.awt.Frame parent, boolean modal, Message message, SessionEmail session ){
         super(parent, modal);
         try {
+            
             initComponents();
             this.message = message;
             this.sessionEmail = session;
@@ -63,6 +66,10 @@ public class ReceiveMail extends javax.swing.JDialog {
         } catch (MessagingException ex) {
             Logger.getLogger(ReceiveMail.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+    
+    public void setParent(InBox parent){
+        this.parentFream = parent;
     }
     
     Thread downloadFile = new Thread(new Runnable() {
@@ -267,6 +274,7 @@ public class ReceiveMail extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
+        parentFream.closeMessage(numberMess);
         dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
