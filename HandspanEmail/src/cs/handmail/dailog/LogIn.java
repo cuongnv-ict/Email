@@ -11,6 +11,7 @@ import cs.handmail.mail.SessionEmail;
 import java.awt.Toolkit;
 
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Properties;
 import javax.swing.JFrame;
 import java.util.Vector;
@@ -21,6 +22,7 @@ import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
 
 /**
  *
@@ -50,7 +52,8 @@ public class LogIn extends javax.swing.JDialog {
             pass.setText("");
         }
         remeber.setSelected("1".equals(user.get(2)));
-         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 250, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 180);
+        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 250, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 180);
+        load.setVisible(false);
     }
 
     /**
@@ -62,6 +65,7 @@ public class LogIn extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        load = new javax.swing.JLabel();
         pass = new java.awt.TextField();
         mail = new java.awt.TextField();
         log = new java.awt.Button();
@@ -76,6 +80,11 @@ public class LogIn extends javax.swing.JDialog {
         setMinimumSize(new java.awt.Dimension(500, 356));
         setResizable(false);
         getContentPane().setLayout(null);
+
+        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/slideShowLoader.gif"))); // NOI18N
+        load.setEnabled(false);
+        getContentPane().add(load);
+        load.setBounds(-244, 0, 1220, 330);
 
         pass.setBackground(java.awt.SystemColor.controlLtHighlight);
         pass.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
@@ -98,7 +107,7 @@ public class LogIn extends javax.swing.JDialog {
         getContentPane().add(mail);
         mail.setBounds(230, 120, 230, 25);
 
-        log.setLabel("Log In");
+        log.setLabel("Đăng nhập");
         log.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 logActionPerformed(evt);
@@ -112,7 +121,7 @@ public class LogIn extends javax.swing.JDialog {
         getContentPane().add(log);
         log.setBounds(380, 260, 80, 24);
 
-        cancel.setLabel("Cancel");
+        cancel.setLabel("Hủy bỏ");
         cancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelActionPerformed(evt);
@@ -191,6 +200,10 @@ public class LogIn extends javax.swing.JDialog {
         LogInEmail();
     }//GEN-LAST:event_logActionPerformed
 
+    public void load() {
+        load.setVisible(true);
+    }
+
     public void LogInEmail() {
 
         if ("".equals(mail.getText())) {
@@ -202,17 +215,23 @@ public class LogIn extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null, "Bạn chưa nhập password", "LogIn", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        if (getMail(mail.getText(), pass.getText())) {
-            this.dispose();
-            dataUserFile.writeDataUser(mail.getText(), pass.getText(), remeber.isSelected() ? 1 : 0);
-            CenterMail centerMail = new CenterMail(sessionEmail);
-            centerMail.setExtendedState(centerMail.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-            centerMail.setVisible(true);
-        } else {
-            JOptionPane.showMessageDialog(null, "Email, Password chưa chính xác", "LogIn", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        load.setVisible(true);
+        Thread t = new Thread() {
+            public void run() {
+                if (getMail(mail.getText(), pass.getText())) {
+                    dispose();
+                    dataUserFile.writeDataUser(mail.getText(), pass.getText(), remeber.isSelected() ? 1 : 0);
+                    CenterMail centerMail = new CenterMail(sessionEmail);
+                    centerMail.setExtendedState(centerMail.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+                    centerMail.setVisible(true);
+                    load.setVisible(false);
+                } else {
+                    load.setVisible(false);
+                    JOptionPane.showMessageDialog(null, "Email, Password chưa chính xác", "LogIn", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        };
+        t.start();
 
     }
 
@@ -230,6 +249,7 @@ public class LogIn extends javax.swing.JDialog {
     private javax.swing.JLabel Email1;
     private javax.swing.JLabel bg;
     private java.awt.Button cancel;
+    private javax.swing.JLabel load;
     private java.awt.Button log;
     private java.awt.TextField mail;
     private java.awt.TextField pass;
