@@ -72,12 +72,14 @@ public class NewEmail extends javax.swing.JDialog {
     private Folder sent;
     private String messInfo;
     private MimeBodyPart downloadPart;
+    private boolean isSended=false;
     /**
      * Creates new form NewEmail
      */
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session) {
         super(parent, modal);
         initComponents();
+        wait.setVisible(false);
         sessionEmail = session;
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 200, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 250);
         close.setVisible(false);
@@ -100,6 +102,7 @@ public class NewEmail extends javax.swing.JDialog {
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session,Message mess,String messInfo,MimeBodyPart downloadPart,boolean reply,boolean foward) {
         super(parent, modal);
         initComponents();
+        wait.setVisible(false);
         sessionEmail = session;
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 200, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 250);
         close.setVisible(false);
@@ -126,6 +129,15 @@ public class NewEmail extends javax.swing.JDialog {
             ta_message.setEditable(false);
             this.downloadPart = downloadPart;
         }
+        
+        MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
+        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html");
+        mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml");
+        mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
+        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
+        mc.addMailcap("message/rfc822;; x-java-content-handler=com.sun.mail.handlers.message_rfc822");
+        CommandMap.setDefaultCommandMap(mc);
+        
     }
     /**
      * set data for mail rep
@@ -136,7 +148,7 @@ public class NewEmail extends javax.swing.JDialog {
             tf_subject.setText(message.getSubject());
             tf_addr.setText(message.getReplyTo()[0].toString());
             ta_message.setText(processDataMessReplyFoward());
-            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
+///            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
         }catch(MessagingException ex)
         {
             JOptionPane.showMessageDialog(null, "mail eror");
@@ -150,7 +162,7 @@ public class NewEmail extends javax.swing.JDialog {
             tf_subject.setText(message.getSubject());
             ta_message.setText(messInfo);
             ta_message.setText(processDataMessReplyFoward());
-            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
+//            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
         }catch(MessagingException ex)
         {
             JOptionPane.showMessageDialog(null, "mail eror");
@@ -176,6 +188,10 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(message, message.getAllRecipients());
                     JOptionPane.showMessageDialog(null,"send mail success" );
                     transport.close();
+                    isSended = true;
+                    wait.setVisible(false);
+                    ta_message.setVisible(true);
+                    
             }catch(RuntimeException ex)
             {
                 ex.printStackTrace();
@@ -211,7 +227,7 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
                     transport.close();
                     JOptionPane.showMessageDialog(null,"send mail success" );
-         
+                    isSended = true;
                 }catch(RuntimeException ex)
                 {
                     ex.printStackTrace();
@@ -290,7 +306,7 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(messFoward, messFoward.getAllRecipients());
                     transport.close();
                     JOptionPane.showMessageDialog(null,"send mail success" );
-         
+                    isSended = true;
                 }catch(RuntimeException ex)
                 {
                     ex.printStackTrace();
@@ -471,6 +487,7 @@ public class NewEmail extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        wait = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
@@ -486,8 +503,12 @@ public class NewEmail extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(460, 465));
+        setPreferredSize(new java.awt.Dimension(480, 500));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait.gif"))); // NOI18N
+        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, -1, -1));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel1.setText("To:");
@@ -533,16 +554,21 @@ public class NewEmail extends javax.swing.JDialog {
         ta_message.setRows(5);
         jScrollPane1.setViewportView(ta_message);
 
-        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 438, 300));
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 450, 300));
 
         tf_subject.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        getContentPane().add(tf_subject, new org.netbeans.lib.awtextra.AbsoluteConstraints(87, 92, 361, 32));
+        getContentPane().add(tf_subject, new org.netbeans.lib.awtextra.AbsoluteConstraints(87, 92, 370, 32));
 
         tf_cc.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        getContentPane().add(tf_cc, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 53, 362, 31));
+        tf_cc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf_ccActionPerformed(evt);
+            }
+        });
+        getContentPane().add(tf_cc, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 53, 370, 31));
 
         tf_addr.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        getContentPane().add(tf_addr, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 13, 362, 32));
+        getContentPane().add(tf_addr, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 13, 370, 32));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -580,7 +606,9 @@ public class NewEmail extends javax.swing.JDialog {
             {
                 setAdapter();
                 fowardMailThread.start();
-                dispose();
+//                dispose();
+                ta_message.setVisible(false);
+                wait.setVisible(true);
             }
             
         }
@@ -589,30 +617,40 @@ public class NewEmail extends javax.swing.JDialog {
             getTextFromUI();
             setAdapter();
             replyMailThread.start();
-            dispose();
+            ta_message.setVisible(false);
+            wait.setVisible(true);
+//            dispose();
         }
         else{
             getTextFromUI();
             setAdapter();
-//            if(addrTo.equals("")&&cc_addr.equals(""))
-//            {
+            if(!(addrTo.equals("")&&cc_addr.equals(""))||!(addrTo==null&&cc_addr==null))
+            {
                 if(subject.equals(""))
                 {
                     int check = JOptionPane.showConfirmDialog(null, "your mail don't have dubject. Do you sure send this mail");
                     if(check == JOptionPane.YES_OPTION)
                     {
                         sendMailThread.start();
-                         dispose();
+//                         dispose();
+                        ta_message.setVisible(false);
+                        wait.setVisible(true);
                     }
                 }else{
                     sendMailThread.start();
-                    dispose();
+                  //  dispose();
+                    ta_message.setVisible(false);
+                    wait.setVisible(true);
                 }
-//            }else{
-//                JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
-//            }
+            }else{
+                JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
+            }
         }
     }//GEN-LAST:event_button1ActionPerformed
+
+    private void tf_ccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_ccActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tf_ccActionPerformed
 
     
     String processDataMessReplyFoward(){
@@ -659,5 +697,6 @@ public class NewEmail extends javax.swing.JDialog {
     private javax.swing.JTextField tf_addr;
     private javax.swing.JTextField tf_cc;
     private javax.swing.JTextField tf_subject;
+    private javax.swing.JLabel wait;
     // End of variables declaration//GEN-END:variables
 }
