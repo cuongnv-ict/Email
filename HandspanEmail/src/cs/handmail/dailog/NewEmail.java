@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,7 +57,7 @@ public class NewEmail extends javax.swing.JDialog {
     private SessionEmail sessionEmail;
     private String subject;
     private String addrTo;
-    private String cc_addr;
+    private String cc_addr="";
     private String messageBody;
     private boolean isAttachFile = false;
     private String pathFileAttach;
@@ -119,7 +120,6 @@ public class NewEmail extends javax.swing.JDialog {
         if(reply)
         {
             setDataForReply();
-            attach.setVisible(false);
             
         }
         
@@ -127,6 +127,7 @@ public class NewEmail extends javax.swing.JDialog {
         {
             setDataForFoward();
             ta_message.setEditable(false);
+            attach.setVisible(false);
             this.downloadPart = downloadPart;
         }
         
@@ -216,9 +217,32 @@ public class NewEmail extends javax.swing.JDialog {
                     Message replyMessage = new MimeMessage(session);
                     replyMessage = (MimeMessage) message.reply(false);
                     replyMessage.setFrom(new InternetAddress(userMail));
-                    replyMessage.setText(ta_message.getText());
+                    if(isAttachFile)
+                    {
+                        byte[] attachFileData;
+                        Path path = Paths.get(pathFileAttach);
+                        attachFileData = Files.readAllBytes(path);
+                        String[] fileHandle = fileName.split(Pattern.quote("."));
+                        MimeTypeJavaMail mime = new MimeTypeJavaMail();
+                        String nameContent =mime.getMimteString(fileHandle[1]);
+                        Multipart multipart = new MimeMultipart("mixed");
+                        // set text parts
+                        MimeBodyPart textPlainPart = new MimeBodyPart();
+                        textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                        multipart.addBodyPart(textPlainPart);
+                        // set body parts
+                        MimeBodyPart attachFilePart = new MimeBodyPart();
+                        DataSource source = new FileDataSource(pathFileAttach);
+                        attachFilePart.setDataHandler(new DataHandler(source));
+                        attachFilePart.setFileName(fileName);
+                        attachFilePart.setDisposition("attachment");
+                        multipart.addBodyPart(attachFilePart);
+                        replyMessage.setContent(multipart);
+                    }else{
+                        replyMessage.setText(ta_message.getText());
+                    }
                     replyMessage.setReplyTo(message.getReplyTo());
-                    if(cc_addr!=null||!cc_addr.equals(""))
+                    if(!cc_addr.equals(""))
                     replyMessage.addRecipient(Message.RecipientType.CC, new InternetAddress(cc_addr));
                     replyMessage.setFlag(Flags.Flag.SEEN, true);
                     replyMessage.setSentDate(new Date());            
@@ -228,6 +252,8 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
                     transport.close();
                     JOptionPane.showMessageDialog(null,"send mail success" );
+                    wait.setVisible(false);
+                    ta_message.setVisible(true);
                     isSended = true;
                 }catch(RuntimeException ex)
                 {
@@ -236,6 +262,8 @@ public class NewEmail extends javax.swing.JDialog {
                 }catch(MessagingException ex){
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+                }catch(IOException ex){
+                    ex.printStackTrace();
                 }
         }
     });
@@ -254,33 +282,6 @@ public class NewEmail extends javax.swing.JDialog {
                     messFoward.setSubject("Fwd: " + message.getSubject());
                     messFoward.setFrom(new InternetAddress(from));
                     messFoward.setSentDate(new Date());
-                     /* 
-                    khong dung chuan rfc822
-                    MimeBodyPart messageBodyPart = new MimeBodyPart();
-                    Multipart multipart = new MimeMultipart();
-                    
-                    messageBodyPart.setContent(message, "message/rfc822");
-                    multipart.addBodyPart(messageBodyPart);
-                    */
-                 //   messFoward.setContent(multipart);
-                   // Multipart multipart = new MimeMultipart();
-                    // Create your new message part    
-//                    BodyPart messageBodyPart = new MimeBodyPart();    
-//                    messageBodyPart.setText("Oiginal message:\n\n");    
-//
-//                    // Create a multi-part to combine the parts    
-//                    Multipart multipart = new MimeMultipart();    
-//                    multipart.addBodyPart(messageBodyPart);    
-//
-//                    // Create and fill part for the forwarded content    
-//                    messageBodyPart = new MimeBodyPart();    
-//                    messageBodyPart.setDataHandler(message.getDataHandler());    
-//
-//                    // Add part to multi part    
-//                    multipart.addBodyPart(messageBodyPart);    
-//                    messFoward.setContent(multipart);
-//                    messFoward.saveChanges();
-                //    sent.appendMessages(new Message[]{messFoward});
                     if(downloadPart!=null)
                     {
                         MimeTypeJavaMail mime = new MimeTypeJavaMail();
@@ -307,6 +308,8 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(messFoward, messFoward.getAllRecipients());
                     transport.close();
                     JOptionPane.showMessageDialog(null,"send mail success" );
+                    wait.setVisible(false);
+                    ta_message.setVisible(true);
                     isSended = true;
                 }catch(RuntimeException ex)
                 {
