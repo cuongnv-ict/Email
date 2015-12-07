@@ -109,10 +109,10 @@ public class SessionEmail {
             portmail = port;
             return true;
         } catch (NoSuchProviderException ex) {
-            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+          //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } catch (MessagingException ex) {
-            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+          //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }

@@ -115,9 +115,17 @@ public class StatisticMail extends javax.swing.JPanel {
                 {null, null, null, null, null, null}
             },
             new String [] {
-                "STT", "Email", "Num. Email Requested", "Num. Email Answered", "Num. Email Answered in 24h", "AVG. Time (h:m)"
+                "STT", "Email", "Số email được yêu cầu trả lời", "Số email nhân viên đã trả lời", "Số email chưa trả lời trong 24h", "Thời gian trả lời trung bình mỗi email (hh::mm)"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, true, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         jScrollPane1.setViewportView(tableAcount);
         if (tableAcount.getColumnModel().getColumnCount() > 0) {
             tableAcount.getColumnModel().getColumn(0).setMinWidth(50);

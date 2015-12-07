@@ -43,7 +43,7 @@ public class TableListAcount {
     }
 
     public void listAcount(JTable table, Map<String, Integer> map) {
-        ArrayList<Object[]> data = new ArrayList<Object[]>();
+        ArrayList<Object[]> data = new ArrayList();
         int count = 1;
         for (String key : map.keySet()) {
             Object[] str = new Object[3];
@@ -65,7 +65,7 @@ public class TableListAcount {
     }
 
     public void statisticEmail(JTable table, Map<String, Integer> map, Map<String, Message[]> request, Map<String, Message[]> answer) {
-        ArrayList<Object[]> data = new ArrayList<Object[]>();
+        ArrayList<Object[]> data = new ArrayList();
         int count = 1;
         for (String key : map.keySet()) {
             Object[] str = new Object[6];
@@ -146,9 +146,6 @@ public class TableListAcount {
                             d2 = new Date();
                         }
                         value = subTime(d2, d1);
-                        if (value < (24 * 60)) {
-                            time[0]++;
-                        }
                         isF = false;
                         m = anMSG;
                         break;
@@ -163,6 +160,9 @@ public class TableListAcount {
                         d2 = new Date();
                     }
                     value = subTime(d2, d1);
+                    if (value < (24 * 60)) {
+                        time[0]++;
+                    }
                 } else {
                     an.remove(m);
                 }
