@@ -5,6 +5,7 @@
  */
 package cs.handmail.mail;
 
+import cs.handmail.file.AdminFile;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,20 +57,29 @@ public class SessionEmail {
     private AccuracyEmail accuracyEmail;
     private Folder inbox;
     private Folder sent;
-    private Session smtpSession=null;
+    private Session smtpSession = null;
+    private AdminFile adminFile;
+    private boolean isAdmin;
 
-    public Session getsmtpSession()
-    {
+    public SessionEmail() {
+        accuracyEmail = new AccuracyEmail();
+        adminFile = new AdminFile();
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void checkAdmin() {
+        isAdmin = email.equals(adminFile.readDataUser());
+    }
+
+    public Session getsmtpSession() {
         return smtpSession;
     }
 
-    public Folder getInboxFolder()
-    {
+    public Folder getInboxFolder() {
         return inbox;
-    }
-    
-    public SessionEmail() {
-        accuracyEmail = new AccuracyEmail();
     }
 
     public Store getStore() {
@@ -107,12 +117,13 @@ public class SessionEmail {
             password = pass;
             hostmail = host;
             portmail = port;
+            isAdmin = email.equals(adminFile.readDataUser());
             return true;
         } catch (NoSuchProviderException ex) {
-          //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+            //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } catch (MessagingException ex) {
-          //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+            //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }
@@ -307,19 +318,19 @@ public class SessionEmail {
                         boolean f2 = false;
                         for (Address a : msg.getFrom()) {
                             String m = accuracyEmail.extraEmail(a.toString());
-                            if(email.equals(m)){
+                            if (email.equals(m)) {
                                 f1 = true;
                             }
-                            if(!accuracyEmail.isEmailHandspan(m)){
+                            if (!accuracyEmail.isEmailHandspan(m)) {
                                 f2 = true;
                             }
                         }
-                        if(f2){
+                        if (f2) {
                             return true;
                         }
-                        if(f1){
+                        if (f1) {
                             String sub = msg.getSubject();
-                            if(sub != null && sub.startsWith("Fwd")){
+                            if (sub != null && sub.startsWith("Fwd")) {
                                 return true;
                             }
                         }

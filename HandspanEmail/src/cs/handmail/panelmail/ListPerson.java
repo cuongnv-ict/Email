@@ -14,6 +14,7 @@ import java.util.TreeMap;
 import javax.swing.JOptionPane;
 import sun.reflect.generics.tree.Tree;
 import cs.handmail.dailog.AddAcount;
+import cs.handmail.dailog.EditAcount;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
@@ -76,11 +77,11 @@ public class ListPerson extends javax.swing.JPanel {
             }
         };
         jPanel1 = new javax.swing.JPanel();
-        textField1 = new java.awt.TextField();
         load = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
+        jTextField1 = new javax.swing.JTextField();
 
         tableAcount.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -118,8 +119,6 @@ public class ListPerson extends javax.swing.JPanel {
         jPanel1.setBackground(java.awt.SystemColor.activeCaption);
         jPanel1.setPreferredSize(new java.awt.Dimension(419, 43));
 
-        textField1.setPreferredSize(new java.awt.Dimension(230, 32));
-
         load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/user_male_add.png"))); // NOI18N
@@ -136,6 +135,11 @@ public class ListPerson extends javax.swing.JPanel {
         jLabel3.setMaximumSize(new java.awt.Dimension(32, 32));
         jLabel3.setMinimumSize(new java.awt.Dimension(32, 32));
         jLabel3.setPreferredSize(new java.awt.Dimension(32, 32));
+        jLabel3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel3MouseClicked(evt);
+            }
+        });
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/user_male_2_delete.png"))); // NOI18N
         jLabel4.setMaximumSize(new java.awt.Dimension(32, 32));
@@ -160,22 +164,22 @@ public class ListPerson extends javax.swing.JPanel {
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(load)
-                .addGap(2, 2, 2)
-                .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(13, 13, 13)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(textField1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(13, 13, 13)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jTextField1)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -227,6 +231,25 @@ public class ListPerson extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_jLabel4MouseClicked
 
+    private void jLabel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel3MouseClicked
+        // TODO add your handling code here:
+        TableModel tableModel = tableAcount.getModel();
+        ArrayList<String> mails = new ArrayList<>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            if ((Boolean) tableModel.getValueAt(i, 0) == true) {
+                mails.add(String.valueOf(tableModel.getValueAt(i, 2)));
+            }
+        }
+        if (mails.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Hãy chọn tài khoản để xóa.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
+        } else if (mails.size() != 1) {
+            JOptionPane.showMessageDialog(null, "Bạn chỉ được phép  chỉnh sửa 1 mail.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            EditAcount e = new EditAcount(null, true, tableAcount, sessionEmail);
+            e.setVisible(true);
+        }
+    }//GEN-LAST:event_jLabel3MouseClicked
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel2;
@@ -234,8 +257,8 @@ public class ListPerson extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JLabel load;
     private javax.swing.JTable tableAcount;
-    private java.awt.TextField textField1;
     // End of variables declaration//GEN-END:variables
 }

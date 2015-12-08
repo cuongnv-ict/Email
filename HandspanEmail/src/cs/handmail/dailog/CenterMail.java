@@ -13,6 +13,7 @@ import cs.handmail.panelmail.StatisticMail;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Timer;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -142,7 +143,6 @@ public class CenterMail extends javax.swing.JFrame {
         jMenuItem4 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem6 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -164,9 +164,9 @@ public class CenterMail extends javax.swing.JFrame {
 
         Email.setLeftComponent(ScrollPane);
 
-        jMenu1.setText("Systems");
+        jMenu1.setText("Hệ thống");
 
-        jMenuItem5.setText("New Email");
+        jMenuItem5.setText("Mail mới");
         jMenuItem5.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem5ActionPerformed(evt);
@@ -200,17 +200,19 @@ public class CenterMail extends javax.swing.JFrame {
 
         jMenuBar2.add(jMenu1);
 
-        jMenu2.setText("Setting");
+        jMenu2.setText("Cài đặt");
 
-        jMenuItem3.setText("Port");
+        jMenuItem3.setText("Thiết lập mail quản lý");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem3);
-
-        jMenuItem6.setText("Reset Acount");
-        jMenu2.add(jMenuItem6);
 
         jMenuBar2.add(jMenu2);
 
-        jMenu3.setText("Help");
+        jMenu3.setText("Giúp đỡ");
         jMenuBar2.add(jMenu3);
 
         setJMenuBar(jMenuBar2);
@@ -233,12 +235,20 @@ public class CenterMail extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
         // TODO add your handling code here:
+        if (!sessionEmail.isAdmin()) {
+            JOptionPane.showMessageDialog(null, "Tài khoản của bạn không được quyền truy nhập chức năng này.", "", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         flagsMail = NOMAIL;
         Email.setRightComponent(new StatisticMail(sessionEmail));
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
+        if (!sessionEmail.isAdmin()) {
+            JOptionPane.showMessageDialog(null, "Tài khoản của bạn không được quyền truy nhập chức năng này.", "", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         flagsMail = NOMAIL;
         Email.setRightComponent(new ListPerson(sessionEmail));
     }//GEN-LAST:event_jMenuItem2ActionPerformed
@@ -250,9 +260,16 @@ public class CenterMail extends javax.swing.JFrame {
 
     private void jMenuItem5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem5ActionPerformed
         // TODO add your handling code here:
-        NewEmail newEmail = new NewEmail(null, true,sessionEmail);
+        NewEmail newEmail = new NewEmail(null, true, sessionEmail);
         newEmail.setVisible(true);
     }//GEN-LAST:event_jMenuItem5ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        // TODO add your handling code here:
+        Admin admin = new Admin(null,true);
+        admin.setVisible(true);
+        sessionEmail.checkAdmin();
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane Email;
@@ -267,6 +284,5 @@ public class CenterMail extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem3;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
     // End of variables declaration//GEN-END:variables
 }

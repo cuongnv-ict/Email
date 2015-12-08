@@ -13,6 +13,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -73,10 +74,25 @@ public class StatisticMail extends javax.swing.JPanel {
             int ye = year.getSelectedIndex() + 2010;
             int id = 1;
             tableListAcount.clearTable(tableAcount);
-            for (Object key : properties.keySet()) {
-                Map<String, Message[]> msgs = sessionEmail.statisticAddressEmail(mon, ye, String.valueOf(key),dataUserFile.decryptPass(String.valueOf(properties.get(key))));
-                tableListAcount.statisticEmail(tableAcount, msgs, String.valueOf(key), id);
-                id++;
+            ArrayList<Thread> arrThread = new ArrayList<>();
+            properties.keySet().stream().map((key) -> new Thread() {
+                @Override
+                public void run() {
+                    Map<String, Message[]> msgs = sessionEmail.statisticAddressEmail(mon, ye, String.valueOf(key), dataUserFile.decryptPass(String.valueOf(properties.get(key))));
+                    tableListAcount.statisticEmail(tableAcount, msgs, String.valueOf(key), 0);
+                }
+            }).forEach((t) -> {
+                t.start();
+                arrThread.add(t);
+            });
+            while (!arrThread.isEmpty()) {
+                ArrayList<Thread> arr = new ArrayList<>();
+                for (Thread x : arrThread) {
+                    if(!x.isAlive()){
+                        arr.add(x);
+                    }
+                }
+                arrThread.removeAll(arr);
             }
         }
     }

@@ -14,9 +14,13 @@ import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
@@ -31,7 +35,8 @@ public class InBox extends javax.swing.JPanel {
     private TableListEmail tableListEmail;
     private boolean timeout;
     private Message message[];
-
+    Vector messageDisplay;
+    private InBox main;
     /**
      * Creates new form InBox
      *
@@ -41,6 +46,8 @@ public class InBox extends javax.swing.JPanel {
     public InBox(int flags, SessionEmail session) {
         initComponents();
         this.flags = flags;
+        messageDisplay = new Vector<Integer>();
+        main = this;
         sessionEmail = session;
         tableListEmail = new TableListEmail();
         timeout = true;
@@ -81,6 +88,31 @@ public class InBox extends javax.swing.JPanel {
         th.start();
     }
 
+    public void openMessage(int numberOfmessageInbox)
+    {
+        messageDisplay.add(numberOfmessageInbox);
+    }
+    
+    public void closeMessage(int numberOfmessageInbox)
+    {
+        int i =0;
+        while(i<messageDisplay.size())
+        {
+            if((int)messageDisplay.get(i) == numberOfmessageInbox) break;
+            i++;
+        }
+        messageDisplay.removeElementAt(i);
+    }
+    
+    boolean checkMessage(int numberOfmessageInbox)
+    {
+        for(int i = 0; i<messageDisplay.size();i++)
+        {
+            if((int)messageDisplay.get(i)== numberOfmessageInbox) return true;
+        }
+        return false;
+    }
+    
     public void updateEmail() {
         message = null;
         switch (flags) {
@@ -119,10 +151,29 @@ public class InBox extends javax.swing.JPanel {
             public void mousePressed(MouseEvent e) {
                 JTable table =(JTable) e.getSource();
                 Point p = e.getPoint();
+                
                 int row = table.rowAtPoint(p);
                 if (e.getClickCount() == 2) {
-                    ReceiveMail receveiMail = new ReceiveMail(null, false,message[message.length-1-row],sessionEmail);
-                    receveiMail.show();
+                    int temp =message[message.length-1-row].getMessageNumber();
+                    if(!checkMessage(temp))
+                    {
+                        ReceiveMail receveiMail = new ReceiveMail(null, false,message[message.length-1-row],sessionEmail);
+                        receveiMail.setParent(main);
+                        receveiMail.numberMess = temp;
+                        openMessage(temp);
+                        receveiMail.addWindowListener(new WindowAdapter() {
+
+                            @Override
+                            public void windowClosed(WindowEvent e) {
+                                super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
+                                closeMessage(temp);
+                            }
+
+                        });
+                        receveiMail.show();
+                    }else{
+                        JOptionPane.showMessageDialog(null, "message opened");
+                    }
                 }
             }
             
@@ -187,7 +238,7 @@ public class InBox extends javax.swing.JPanel {
 
             },
             new String [] {
-                "", "STT", "Date", "From", "Subject"
+                "", "STT", "Date", "Address", "Subject"
             }
         ) {
             Class[] types = new Class [] {

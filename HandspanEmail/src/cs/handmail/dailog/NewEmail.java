@@ -12,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -56,7 +57,7 @@ public class NewEmail extends javax.swing.JDialog {
     private SessionEmail sessionEmail;
     private String subject;
     private String addrTo;
-    private String cc_addr;
+    private String cc_addr="";
     private String messageBody;
     private boolean isAttachFile = false;
     private String pathFileAttach;
@@ -72,12 +73,14 @@ public class NewEmail extends javax.swing.JDialog {
     private Folder sent;
     private String messInfo;
     private MimeBodyPart downloadPart;
+    private boolean isSended=false;
     /**
      * Creates new form NewEmail
      */
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session) {
         super(parent, modal);
         initComponents();
+        wait.setVisible(false);
         sessionEmail = session;
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 200, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 250);
         close.setVisible(false);
@@ -100,6 +103,7 @@ public class NewEmail extends javax.swing.JDialog {
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session,Message mess,String messInfo,MimeBodyPart downloadPart,boolean reply,boolean foward) {
         super(parent, modal);
         initComponents();
+        wait.setVisible(false);
         sessionEmail = session;
         this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 200, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 250);
         close.setVisible(false);
@@ -116,7 +120,6 @@ public class NewEmail extends javax.swing.JDialog {
         if(reply)
         {
             setDataForReply();
-            attach.setVisible(false);
             
         }
         
@@ -124,8 +127,18 @@ public class NewEmail extends javax.swing.JDialog {
         {
             setDataForFoward();
             ta_message.setEditable(false);
+            attach.setVisible(false);
             this.downloadPart = downloadPart;
         }
+        
+        MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
+        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html");
+        mc.addMailcap("text/xml;; x-java-content-handler=com.sun.mail.handlers.text_xml");
+        mc.addMailcap("text/plain;; x-java-content-handler=com.sun.mail.handlers.text_plain");
+        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
+        mc.addMailcap("message/rfc822;; x-java-content-handler=com.sun.mail.handlers.message_rfc822");
+        CommandMap.setDefaultCommandMap(mc);
+        
     }
     /**
      * set data for mail rep
@@ -136,7 +149,7 @@ public class NewEmail extends javax.swing.JDialog {
             tf_subject.setText(message.getSubject());
             tf_addr.setText(message.getReplyTo()[0].toString());
             ta_message.setText(processDataMessReplyFoward());
-            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
+///            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
         }catch(MessagingException ex)
         {
             JOptionPane.showMessageDialog(null, "mail eror");
@@ -150,7 +163,7 @@ public class NewEmail extends javax.swing.JDialog {
             tf_subject.setText(message.getSubject());
             ta_message.setText(messInfo);
             ta_message.setText(processDataMessReplyFoward());
-            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
+//            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
         }catch(MessagingException ex)
         {
             JOptionPane.showMessageDialog(null, "mail eror");
@@ -176,6 +189,10 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(message, message.getAllRecipients());
                     JOptionPane.showMessageDialog(null,"send mail success" );
                     transport.close();
+                    isSended = true;
+                    wait.setVisible(false);
+                    ta_message.setVisible(true);
+                    
             }catch(RuntimeException ex)
             {
                 ex.printStackTrace();
@@ -200,8 +217,32 @@ public class NewEmail extends javax.swing.JDialog {
                     Message replyMessage = new MimeMessage(session);
                     replyMessage = (MimeMessage) message.reply(false);
                     replyMessage.setFrom(new InternetAddress(userMail));
-                    replyMessage.setText(ta_message.getText());
+                    if(isAttachFile)
+                    {
+                        byte[] attachFileData;
+                        Path path = Paths.get(pathFileAttach);
+                        attachFileData = Files.readAllBytes(path);
+                        String[] fileHandle = fileName.split(Pattern.quote("."));
+                        MimeTypeJavaMail mime = new MimeTypeJavaMail();
+                        String nameContent =mime.getMimteString(fileHandle[1]);
+                        Multipart multipart = new MimeMultipart("mixed");
+                        // set text parts
+                        MimeBodyPart textPlainPart = new MimeBodyPart();
+                        textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                        multipart.addBodyPart(textPlainPart);
+                        // set body parts
+                        MimeBodyPart attachFilePart = new MimeBodyPart();
+                        DataSource source = new FileDataSource(pathFileAttach);
+                        attachFilePart.setDataHandler(new DataHandler(source));
+                        attachFilePart.setFileName(fileName);
+                        attachFilePart.setDisposition("attachment");
+                        multipart.addBodyPart(attachFilePart);
+                        replyMessage.setContent(multipart);
+                    }else{
+                        replyMessage.setText(ta_message.getText());
+                    }
                     replyMessage.setReplyTo(message.getReplyTo());
+                    if(!cc_addr.equals(""))
                     replyMessage.addRecipient(Message.RecipientType.CC, new InternetAddress(cc_addr));
                     replyMessage.setFlag(Flags.Flag.SEEN, true);
                     replyMessage.setSentDate(new Date());            
@@ -211,7 +252,9 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
                     transport.close();
                     JOptionPane.showMessageDialog(null,"send mail success" );
-         
+                    wait.setVisible(false);
+                    ta_message.setVisible(true);
+                    isSended = true;
                 }catch(RuntimeException ex)
                 {
                     ex.printStackTrace();
@@ -219,6 +262,8 @@ public class NewEmail extends javax.swing.JDialog {
                 }catch(MessagingException ex){
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+                }catch(IOException ex){
+                    ex.printStackTrace();
                 }
         }
     });
@@ -237,33 +282,6 @@ public class NewEmail extends javax.swing.JDialog {
                     messFoward.setSubject("Fwd: " + message.getSubject());
                     messFoward.setFrom(new InternetAddress(from));
                     messFoward.setSentDate(new Date());
-                     /* 
-                    khong dung chuan rfc822
-                    MimeBodyPart messageBodyPart = new MimeBodyPart();
-                    Multipart multipart = new MimeMultipart();
-                    
-                    messageBodyPart.setContent(message, "message/rfc822");
-                    multipart.addBodyPart(messageBodyPart);
-                    */
-                 //   messFoward.setContent(multipart);
-                   // Multipart multipart = new MimeMultipart();
-                    // Create your new message part    
-//                    BodyPart messageBodyPart = new MimeBodyPart();    
-//                    messageBodyPart.setText("Oiginal message:\n\n");    
-//
-//                    // Create a multi-part to combine the parts    
-//                    Multipart multipart = new MimeMultipart();    
-//                    multipart.addBodyPart(messageBodyPart);    
-//
-//                    // Create and fill part for the forwarded content    
-//                    messageBodyPart = new MimeBodyPart();    
-//                    messageBodyPart.setDataHandler(message.getDataHandler());    
-//
-//                    // Add part to multi part    
-//                    multipart.addBodyPart(messageBodyPart);    
-//                    messFoward.setContent(multipart);
-//                    messFoward.saveChanges();
-                //    sent.appendMessages(new Message[]{messFoward});
                     if(downloadPart!=null)
                     {
                         MimeTypeJavaMail mime = new MimeTypeJavaMail();
@@ -275,7 +293,9 @@ public class NewEmail extends javax.swing.JDialog {
                         // set body parts
                         MimeBodyPart attachFilePart = new MimeBodyPart();
                         //DataSource source = new FileDataSource();
-                        attachFilePart.setDataHandler(downloadPart.getDataHandler());
+//                        InputStream input = downloadPart.getInputStream();
+                        DataSource datasource = downloadPart.getDataHandler().getDataSource();
+                        attachFilePart.setDataHandler(new DataHandler(datasource));
                         attachFilePart.setFileName(downloadPart.getFileName());
                         attachFilePart.setDisposition("attachment");
                         multipart.addBodyPart(attachFilePart);
@@ -290,7 +310,9 @@ public class NewEmail extends javax.swing.JDialog {
                     transport.sendMessage(messFoward, messFoward.getAllRecipients());
                     transport.close();
                     JOptionPane.showMessageDialog(null,"send mail success" );
-         
+                    wait.setVisible(false);
+                    ta_message.setVisible(true);
+                    isSended = true;
                 }catch(RuntimeException ex)
                 {
                     ex.printStackTrace();
@@ -471,35 +493,39 @@ public class NewEmail extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        ta_message = new java.awt.TextArea();
-        tf_addr = new java.awt.TextField();
+        wait = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        tf_cc = new java.awt.TextField();
         jLabel3 = new javax.swing.JLabel();
-        tf_subject = new java.awt.TextField();
         button1 = new java.awt.Button();
         attach = new javax.swing.JLabel();
         close = new javax.swing.JLabel();
         path = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ta_message = new javax.swing.JTextArea();
+        tf_subject = new javax.swing.JTextField();
+        tf_cc = new javax.swing.JTextField();
+        tf_addr = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setMinimumSize(new java.awt.Dimension(460, 465));
         setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait1.gif"))); // NOI18N
+        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 390, 270));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel1.setText("To:");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 11, 66, 32));
 
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel2.setText("CC:");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 51, 66, 32));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel3.setText("Subject:");
-
-        tf_subject.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                tf_subjectActionPerformed(evt);
-            }
-        });
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 90, -1, 32));
 
         button1.setBackground(java.awt.SystemColor.activeCaption);
         button1.setLabel("Send");
@@ -508,6 +534,7 @@ public class NewEmail extends javax.swing.JDialog {
                 button1ActionPerformed(evt);
             }
         });
+        getContentPane().add(button1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 440, 67, 25));
 
         attach.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Attach-icon.png"))); // NOI18N
         attach.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -515,6 +542,7 @@ public class NewEmail extends javax.swing.JDialog {
                 attachMouseClicked(evt);
             }
         });
+        getContentPane().add(attach, new org.netbeans.lib.awtextra.AbsoluteConstraints(80, 440, -1, -1));
 
         close.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/clsoe.png"))); // NOI18N
         close.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -522,70 +550,33 @@ public class NewEmail extends javax.swing.JDialog {
                 closeMouseClicked(evt);
             }
         });
+        getContentPane().add(close, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 440, -1, 25));
+        getContentPane().add(path, new org.netbeans.lib.awtextra.AbsoluteConstraints(144, 395, 304, 25));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tf_addr, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(button1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tf_subject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(attach)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(close)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(path, javax.swing.GroupLayout.DEFAULT_SIZE, 304, Short.MAX_VALUE))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 66, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tf_cc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(ta_message, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(13, 13, 13))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_addr, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_cc, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(tf_subject, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addComponent(ta_message, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(button1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(attach, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(close, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(path, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
+        ta_message.setColumns(20);
+        ta_message.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        ta_message.setLineWrap(true);
+        ta_message.setRows(5);
+        jScrollPane1.setViewportView(ta_message);
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 450, 300));
+
+        tf_subject.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_subject, new org.netbeans.lib.awtextra.AbsoluteConstraints(87, 92, 370, 32));
+
+        tf_cc.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        tf_cc.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf_ccActionPerformed(evt);
+            }
+        });
+        getContentPane().add(tf_cc, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 53, 370, 31));
+
+        tf_addr.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_addr, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 13, 370, 32));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void tf_subjectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_subjectActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_tf_subjectActionPerformed
 
     private void attachMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_attachMouseClicked
         JFileChooser fileChooser = new JFileChooser();
@@ -620,7 +611,9 @@ public class NewEmail extends javax.swing.JDialog {
             {
                 setAdapter();
                 fowardMailThread.start();
-                dispose();
+//                dispose();
+              //  ta_message.setVisible(false);
+                wait.setVisible(true);
             }
             
         }
@@ -629,39 +622,50 @@ public class NewEmail extends javax.swing.JDialog {
             getTextFromUI();
             setAdapter();
             replyMailThread.start();
-            dispose();
+           // ta_message.setVisible(false);
+            wait.setVisible(true);
+//            dispose();
         }
         else{
             getTextFromUI();
             setAdapter();
-//            if(addrTo.equals("")&&cc_addr.equals(""))
-//            {
+            if(!(addrTo.equals("")&&cc_addr.equals(""))||!(addrTo==null&&cc_addr==null))
+            {
                 if(subject.equals(""))
                 {
                     int check = JOptionPane.showConfirmDialog(null, "your mail don't have dubject. Do you sure send this mail");
                     if(check == JOptionPane.YES_OPTION)
                     {
                         sendMailThread.start();
-                         dispose();
+//                         dispose();
+                     //   ta_message.setVisible(false);
+                        wait.setVisible(true);
                     }
                 }else{
                     sendMailThread.start();
-                    dispose();
+                  //  dispose();
+                //    ta_message.setVisible(false);
+                    wait.setVisible(true);
                 }
-//            }else{
-//                JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
-//            }
+            }else{
+                JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
+            }
         }
     }//GEN-LAST:event_button1ActionPerformed
+
+    private void tf_ccActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf_ccActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tf_ccActionPerformed
 
     
     String processDataMessReplyFoward(){
         try {
             if(isReply)
             {
-                    String mess= "Quoting " + message.getReplyTo()[0].toString() + ":" +System.getProperty("line.separator")+ "  " + System.getProperty("line.separator");
-                    messInfo = messInfo.replace(System.getProperty("line.separator"),System.getProperty("line.separator") + "    " + ">");
-                    mess = mess  + "    " + ">" + messInfo;
+                    String mess = "";
+//                    String mess= "Quoting " + message.getReplyTo()[0].toString() + ":" +System.getProperty("line.separator")+ "  " + System.getProperty("line.separator");
+//                    messInfo = messInfo.replace(System.getProperty("line.separator"),System.getProperty("line.separator") + "    " + ">");
+//                    mess = mess  + "    " + ">" + messInfo;
                     return mess;
             }
             else if(isfoward)
@@ -693,10 +697,12 @@ public class NewEmail extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel path;
-    private java.awt.TextArea ta_message;
-    private java.awt.TextField tf_addr;
-    private java.awt.TextField tf_cc;
-    private java.awt.TextField tf_subject;
+    private javax.swing.JTextArea ta_message;
+    private javax.swing.JTextField tf_addr;
+    private javax.swing.JTextField tf_cc;
+    private javax.swing.JTextField tf_subject;
+    private javax.swing.JLabel wait;
     // End of variables declaration//GEN-END:variables
 }

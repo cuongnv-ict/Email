@@ -46,10 +46,11 @@ public class TableListAcount {
         ArrayList<Object[]> data = new ArrayList();
         int count = 1;
         for (String key : map.keySet()) {
-            Object[] str = new Object[3];
+            Object[] str = new Object[4];
             str[0] = false;
             str[1] = count;
             str[2] = key;
+            str[3] = "Đang kiểm tra ...";
             data.add(str);
             count++;
         }
@@ -245,9 +246,7 @@ public class TableListAcount {
                 } else {
                     an.remove(m);
                 }
-            } catch (IOException ex) {
-                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (MessagingException ex) {
+            } catch (IOException | MessagingException ex) {
                 Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

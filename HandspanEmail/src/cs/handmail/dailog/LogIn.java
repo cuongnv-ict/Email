@@ -5,6 +5,7 @@
  */
 package cs.handmail.dailog;
 
+import cs.handmail.file.AdminFile;
 import cs.handmail.file.PropertiesFile;
 import cs.handmail.file.DataUserFile;
 import cs.handmail.mail.SessionEmail;
@@ -34,6 +35,8 @@ public class LogIn extends javax.swing.JDialog {
     private DataUserFile dataUserFile;
     private Vector<String> user;
     private SessionEmail sessionEmail;
+    private Admin admin;
+    private AdminFile adminFile;
 
     /**
      * Creates new form LogIn
@@ -41,19 +44,34 @@ public class LogIn extends javax.swing.JDialog {
     public LogIn(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
-        propertiesFile = new PropertiesFile();
-        dataUserFile = new DataUserFile();
-        user = dataUserFile.readDataUser();
-        sessionEmail = new SessionEmail();
-        mail.setText(user.get(0));
-        if ("1".equals(user.get(2))) {
-            pass.setText(user.get(1));
-        } else {
-            pass.setText("");
-        }
-        remeber.setSelected("1".equals(user.get(2)));
-        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 250, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 180);
         load.setVisible(false);
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                adminFile = new AdminFile();
+                if (adminFile.readDataUser() == null) {
+                    int x = JOptionPane.showConfirmDialog(null, "Hệ thống chưa xác nhận email quản lý.\nBạn có muốn thiết lập nó ?", "Email quản lý", JOptionPane.YES_NO_OPTION);
+                    if (x == JOptionPane.YES_OPTION) {
+                        admin = new Admin(null, true);
+                        admin.setVisible(true);
+                    }
+                }
+                propertiesFile = new PropertiesFile();
+                dataUserFile = new DataUserFile();
+                user = dataUserFile.readDataUser();
+                sessionEmail = new SessionEmail();
+                mail.setText(user.get(0));
+                if ("1".equals(user.get(2))) {
+                    pass.setText(user.get(1));
+                } else {
+                    pass.setText("");
+                }
+                remeber.setSelected("1".equals(user.get(2)));
+            }
+        };
+        t.start();
+        this.setLocation(Toolkit.getDefaultToolkit().getScreenSize().width / 2 - 250, Toolkit.getDefaultToolkit().getScreenSize().height / 2 - 180);
+
     }
 
     /**
@@ -65,47 +83,25 @@ public class LogIn extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        load = new javax.swing.JLabel();
-        pass = new java.awt.TextField();
-        mail = new java.awt.TextField();
+        mail = new javax.swing.JTextField();
+        pass = new javax.swing.JPasswordField();
         log = new java.awt.Button();
         cancel = new java.awt.Button();
         remeber = new javax.swing.JCheckBox();
         Email = new javax.swing.JLabel();
         Email1 = new javax.swing.JLabel();
         bg = new javax.swing.JLabel();
+        load = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
         setMinimumSize(new java.awt.Dimension(500, 356));
         setResizable(false);
         getContentPane().setLayout(null);
-
-        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/slideShowLoader.gif"))); // NOI18N
-        load.setEnabled(false);
-        getContentPane().add(load);
-        load.setBounds(-244, 0, 1220, 330);
-
-        pass.setBackground(java.awt.SystemColor.controlLtHighlight);
-        pass.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        pass.setEchoChar('*');
-        pass.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                passKeyPressed(evt);
-            }
-        });
-        getContentPane().add(pass);
-        pass.setBounds(230, 160, 230, 25);
-
-        mail.setBackground(java.awt.SystemColor.controlLtHighlight);
-        mail.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
-        mail.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                mailKeyPressed(evt);
-            }
-        });
         getContentPane().add(mail);
-        mail.setBounds(230, 120, 230, 25);
+        mail.setBounds(230, 115, 230, 30);
+        getContentPane().add(pass);
+        pass.setBounds(230, 155, 230, 30);
 
         log.setLabel("Đăng nhập");
         log.addActionListener(new java.awt.event.ActionListener() {
@@ -159,6 +155,11 @@ public class LogIn extends javax.swing.JDialog {
         getContentPane().add(bg);
         bg.setBounds(0, 0, 500, 330);
 
+        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/slideShowLoader.gif"))); // NOI18N
+        load.setEnabled(false);
+        getContentPane().add(load);
+        load.setBounds(-244, 0, 1220, 330);
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
@@ -173,20 +174,6 @@ public class LogIn extends javax.swing.JDialog {
             System.exit(0);
         }
     }//GEN-LAST:event_cancelKeyPressed
-
-    private void mailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_mailKeyPressed
-        // TODO add your handling code here:
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            LogInEmail();
-        }
-    }//GEN-LAST:event_mailKeyPressed
-
-    private void passKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passKeyPressed
-        // TODO add your handling code here:
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            LogInEmail();
-        }
-    }//GEN-LAST:event_passKeyPressed
 
     private void logKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_logKeyPressed
         // TODO add your handling code here:
@@ -251,8 +238,8 @@ public class LogIn extends javax.swing.JDialog {
     private java.awt.Button cancel;
     private javax.swing.JLabel load;
     private java.awt.Button log;
-    private java.awt.TextField mail;
-    private java.awt.TextField pass;
+    private javax.swing.JTextField mail;
+    private javax.swing.JPasswordField pass;
     private javax.swing.JCheckBox remeber;
     // End of variables declaration//GEN-END:variables
 }

@@ -7,6 +7,9 @@
 package cs.handmail.dailog;
 
 import cs.handmail.mail.SessionEmail;
+import cs.handmail.panelmail.InBox;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import static java.util.Arrays.stream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
+import javax.mail.Flags;
 import javax.mail.Message;
 import javax.mail.MessageRemovedException;
 import javax.mail.MessagingException;
@@ -22,7 +26,6 @@ import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-//import org.htmlcleaner.TagNode;
 import org.jsoup.Jsoup;
 import org.jsoup.examples.HtmlToPlainText;
 
@@ -41,6 +44,10 @@ public class ReceiveMail extends javax.swing.JDialog {
     private String addFrom;
     private MimeBodyPart downloadPart=null;
     private boolean isAttachFile=false;
+    public int numberMess;
+    private InBox parentFream;
+    private boolean isReply=false;
+    private boolean isFoward=false;
     /**
      * Creates new form ReceiveMail
      */
@@ -48,15 +55,25 @@ public class ReceiveMail extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
     }
-
-    public ReceiveMail(java.awt.Frame parent, boolean modal, Message message, SessionEmail session){
+    
+    public ReceiveMail(java.awt.Frame parent, boolean modal, Message message, SessionEmail session ){
         super(parent, modal);
-        initComponents();
-        this.message = message;
-        this.sessionEmail = session;
-        updateData();
-        if(isAttachFile) attach.setVisible(true);
-        else attach.setVisible(false);
+        try {
+            
+            initComponents();
+            this.message = message;
+            this.sessionEmail = session;
+            updateData();
+            if(isAttachFile) attach.setVisible(true);
+            else attach.setVisible(false);
+            message.setFlag(Flags.Flag.SEEN, true);
+        } catch (MessagingException ex) {
+            Logger.getLogger(ReceiveMail.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void setParent(InBox parent){
+        this.parentFream = parent;
     }
     
     Thread downloadFile = new Thread(new Runnable() {
@@ -151,27 +168,42 @@ public class ReceiveMail extends javax.swing.JDialog {
         reply = new javax.swing.JButton();
         foward = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        ta_message = new java.awt.TextArea();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        ta_message = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setAlwaysOnTop(true);
+        setMinimumSize(new java.awt.Dimension(420, 478));
+        setPreferredSize(new java.awt.Dimension(480, 500));
+        setResizable(false);
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         jLabel1.setLabelFor(tf_From);
         jLabel1.setText("From :");
+        getContentPane().add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 11, 71, -1));
 
         tf_From.setEditable(false);
+        tf_From.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_From, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 11, 367, 30));
 
         jLabel2.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         jLabel2.setLabelFor(tf_date);
         jLabel2.setText("Date :");
+        getContentPane().add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 46, 71, -1));
 
         tf_date.setEditable(false);
+        tf_date.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_date, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 46, 367, 30));
 
         jLabel3.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         jLabel3.setLabelFor(tf_date);
         jLabel3.setText("Subject:");
+        getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 81, -1, -1));
 
         tf_subject.setEditable(false);
+        tf_subject.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        getContentPane().add(tf_subject, new org.netbeans.lib.awtextra.AbsoluteConstraints(86, 81, 367, 30));
 
         attach.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/Attach-icon.png"))); // NOI18N
         attach.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -179,6 +211,7 @@ public class ReceiveMail extends javax.swing.JDialog {
                 attachMouseClicked(evt);
             }
         });
+        getContentPane().add(attach, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 422, 52, 56));
 
         reply.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         reply.setText("Reply");
@@ -187,6 +220,7 @@ public class ReceiveMail extends javax.swing.JDialog {
                 replyActionPerformed(evt);
             }
         });
+        getContentPane().add(reply, new org.netbeans.lib.awtextra.AbsoluteConstraints(226, 441, 70, 25));
 
         foward.setText("Foward");
         foward.addActionListener(new java.awt.event.ActionListener() {
@@ -194,68 +228,25 @@ public class ReceiveMail extends javax.swing.JDialog {
                 fowardActionPerformed(evt);
             }
         });
+        getContentPane().add(foward, new org.netbeans.lib.awtextra.AbsoluteConstraints(302, 442, 70, 25));
 
         jButton3.setText("Cancle");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(378, 442, 70, 25));
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGap(5, 5, 5)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(tf_From, javax.swing.GroupLayout.DEFAULT_SIZE, 367, Short.MAX_VALUE)
-                                .addComponent(tf_date)
-                                .addComponent(tf_subject))
-                            .addGap(0, 0, Short.MAX_VALUE))
-                        .addGroup(layout.createSequentialGroup()
-                            .addComponent(attach)
-                            .addGap(190, 190, 190)
-                            .addComponent(reply, javax.swing.GroupLayout.DEFAULT_SIZE, 76, Short.MAX_VALUE)
-                            .addGap(5, 5, 5)
-                            .addComponent(foward, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGap(0, 7, Short.MAX_VALUE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(ta_message, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(tf_From, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(tf_date, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(5, 5, 5)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(tf_subject, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(ta_message, javax.swing.GroupLayout.PREFERRED_SIZE, 247, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(10, 10, 10)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(reply, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(foward, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(attach, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(0, 0, 0))))
-        );
+        ta_message.setColumns(20);
+        ta_message.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+        ta_message.setLineWrap(true);
+        ta_message.setRows(5);
+        ta_message.setWrapStyleWord(true);
+        ta_message.setMaximumSize(new java.awt.Dimension(164, 2147483647));
+        jScrollPane1.setViewportView(ta_message);
+
+        getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 117, 443, 299));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -266,7 +257,7 @@ public class ReceiveMail extends javax.swing.JDialog {
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
-           File selectedFile = fileChooser.getSelectedFile();
+            File selectedFile = fileChooser.getSelectedFile();
             pathFolder = selectedFile.getAbsolutePath();
             downloadFile.start();
             JOptionPane.showMessageDialog(null, "download complete");
@@ -275,15 +266,50 @@ public class ReceiveMail extends javax.swing.JDialog {
 
     private void replyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_replyActionPerformed
         // TODO add your handling code here:
-        NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(),null,true,false);
-        email.show();
+        if(!isReply){
+            NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(),null,true,false);
+            isReply = true;
+            email.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
+                    isReply = false;
+                }
+                
+            });
+            email.show();
+        }else{
+            JOptionPane.showMessageDialog(null, "reply window opened");
+        }
     }//GEN-LAST:event_replyActionPerformed
 
     private void fowardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fowardActionPerformed
         // TODO add your handling code here:
-        NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(), downloadPart,false,true);
-        email.show();
+        if(!isFoward)
+        {
+            NewEmail email = new NewEmail(null, false, sessionEmail,message,ta_message.getText(), downloadPart,false,true);
+            isFoward = true;
+            email.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosed(WindowEvent e) {
+                    super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
+                    isFoward = false;
+                }
+                
+            });
+            email.show();
+        }else{
+            JOptionPane.showMessageDialog(null, "foward window opened");
+        }
     }//GEN-LAST:event_fowardActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        parentFream.closeMessage(numberMess);
+        dispose();
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -296,8 +322,9 @@ public class ReceiveMail extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton reply;
-    private java.awt.TextArea ta_message;
+    private javax.swing.JTextArea ta_message;
     private javax.swing.JTextField tf_From;
     private javax.swing.JTextField tf_date;
     private javax.swing.JTextField tf_subject;
