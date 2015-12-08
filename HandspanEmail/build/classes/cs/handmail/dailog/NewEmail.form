@@ -35,12 +35,12 @@
     <Component class="javax.swing.JLabel" name="wait">
       <Properties>
         <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.editors2.IconEditor">
-          <Image iconType="3" name="/image/wait.gif"/>
+          <Image iconType="3" name="/image/wait1.gif"/>
         </Property>
       </Properties>
       <Constraints>
         <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout" value="org.netbeans.modules.form.compat2.layouts.DesignAbsoluteLayout$AbsoluteConstraintsDescription">
-          <AbsoluteConstraints x="10" y="130" width="-1" height="-1"/>
+          <AbsoluteConstraints x="20" y="140" width="430" height="270"/>
         </Constraint>
       </Constraints>
     </Component>

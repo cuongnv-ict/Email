@@ -513,8 +513,8 @@ public class NewEmail extends javax.swing.JDialog {
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait.gif"))); // NOI18N
-        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, -1, -1));
+        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait1.gif"))); // NOI18N
+        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 140, 430, 270));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel1.setText("To:");
@@ -613,7 +613,7 @@ public class NewEmail extends javax.swing.JDialog {
                 setAdapter();
                 fowardMailThread.start();
 //                dispose();
-                ta_message.setVisible(false);
+              //  ta_message.setVisible(false);
                 wait.setVisible(true);
             }
             
@@ -623,7 +623,7 @@ public class NewEmail extends javax.swing.JDialog {
             getTextFromUI();
             setAdapter();
             replyMailThread.start();
-            ta_message.setVisible(false);
+           // ta_message.setVisible(false);
             wait.setVisible(true);
 //            dispose();
         }
@@ -639,13 +639,13 @@ public class NewEmail extends javax.swing.JDialog {
                     {
                         sendMailThread.start();
 //                         dispose();
-                        ta_message.setVisible(false);
+                     //   ta_message.setVisible(false);
                         wait.setVisible(true);
                     }
                 }else{
                     sendMailThread.start();
                   //  dispose();
-                    ta_message.setVisible(false);
+                //    ta_message.setVisible(false);
                     wait.setVisible(true);
                 }
             }else{
