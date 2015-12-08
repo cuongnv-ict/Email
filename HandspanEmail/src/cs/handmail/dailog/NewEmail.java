@@ -293,7 +293,9 @@ public class NewEmail extends javax.swing.JDialog {
                         // set body parts
                         MimeBodyPart attachFilePart = new MimeBodyPart();
                         //DataSource source = new FileDataSource();
-                        attachFilePart.setDataHandler(downloadPart.getDataHandler());
+//                        InputStream input = downloadPart.getInputStream();
+                        DataSource datasource = downloadPart.getDataHandler().getDataSource();
+                        attachFilePart.setDataHandler(new DataHandler(datasource));
                         attachFilePart.setFileName(downloadPart.getFileName());
                         attachFilePart.setDisposition("attachment");
                         multipart.addBodyPart(attachFilePart);
@@ -661,7 +663,8 @@ public class NewEmail extends javax.swing.JDialog {
         try {
             if(isReply)
             {
-                    String mess= "Quoting " + message.getReplyTo()[0].toString() + ":" +System.getProperty("line.separator")+ "  " + System.getProperty("line.separator");
+                    String mess = "";
+//                    String mess= "Quoting " + message.getReplyTo()[0].toString() + ":" +System.getProperty("line.separator")+ "  " + System.getProperty("line.separator");
 //                    messInfo = messInfo.replace(System.getProperty("line.separator"),System.getProperty("line.separator") + "    " + ">");
 //                    mess = mess  + "    " + ">" + messInfo;
                     return mess;
