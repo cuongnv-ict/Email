@@ -83,6 +83,7 @@ public class LogIn extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        load = new javax.swing.JLabel();
         mail = new javax.swing.JTextField();
         pass = new javax.swing.JPasswordField();
         log = new java.awt.Button();
@@ -91,13 +92,17 @@ public class LogIn extends javax.swing.JDialog {
         Email = new javax.swing.JLabel();
         Email1 = new javax.swing.JLabel();
         bg = new javax.swing.JLabel();
-        load = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setBackground(new java.awt.Color(255, 255, 255));
         setMinimumSize(new java.awt.Dimension(500, 356));
         setResizable(false);
         getContentPane().setLayout(null);
+
+        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/slideShowLoader.gif"))); // NOI18N
+        load.setEnabled(false);
+        getContentPane().add(load);
+        load.setBounds(-244, 0, 1220, 330);
         getContentPane().add(mail);
         mail.setBounds(230, 115, 230, 30);
         getContentPane().add(pass);
@@ -154,11 +159,6 @@ public class LogIn extends javax.swing.JDialog {
         bg.setEnabled(false);
         getContentPane().add(bg);
         bg.setBounds(0, 0, 500, 330);
-
-        load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/slideShowLoader.gif"))); // NOI18N
-        load.setEnabled(false);
-        getContentPane().add(load);
-        load.setBounds(-244, 0, 1220, 330);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents

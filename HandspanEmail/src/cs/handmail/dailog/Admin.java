@@ -141,6 +141,7 @@ public class Admin extends javax.swing.JDialog {
         if (p.equals("cshandspan")) {
             AdminFile adminFile = new AdminFile();
             adminFile.writeDataUser(m);
+            this.dispose();
         } else {
             JOptionPane.showMessageDialog(null, "Pass chưa chính xác.", "", JOptionPane.ERROR_MESSAGE);
         }
