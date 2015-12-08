@@ -24,6 +24,7 @@ import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.mail.internet.MimeBodyPart;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import org.jsoup.Jsoup;
@@ -172,7 +173,7 @@ public class ReceiveMail extends javax.swing.JDialog {
         ta_message = new javax.swing.JTextArea();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setAlwaysOnTop(true);
+        setTitle("Email");
         setMinimumSize(new java.awt.Dimension(420, 478));
         setPreferredSize(new java.awt.Dimension(480, 500));
         setResizable(false);
@@ -276,11 +277,14 @@ public class ReceiveMail extends javax.swing.JDialog {
                     super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
                     isReply = false;
                 }
-                
             });
-            email.show();
+            email.setAlwaysOnTop(true);
+            email.setVisible(true);
+//            email.show();
         }else{
-            JOptionPane.showMessageDialog(null, "reply window opened");
+              final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"Mail trả lời đã được mở");
         }
     }//GEN-LAST:event_replyActionPerformed
 
@@ -299,9 +303,13 @@ public class ReceiveMail extends javax.swing.JDialog {
                 }
                 
             });
-            email.show();
+            email.setVisible(true);
+//            email.show();
         }else{
-            JOptionPane.showMessageDialog(null, "foward window opened");
+              final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"Mail chuyển tiếp đã được mở");
+            
         }
     }//GEN-LAST:event_fowardActionPerformed
 

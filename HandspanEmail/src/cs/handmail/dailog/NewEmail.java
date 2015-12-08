@@ -7,7 +7,9 @@ package cs.handmail.dailog;
 
 import cs.handmail.file.DataUserFile;
 import cs.handmail.mail.SessionEmail;
+import java.awt.Dialog;
 import java.awt.Toolkit;
+import java.awt.event.WindowListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,9 +26,11 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.activation.CommandMap;
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
 import javax.activation.FileDataSource;
+import javax.activation.MailcapCommandMap;
 import javax.activation.MimeType;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
@@ -34,6 +38,7 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
+import javax.mail.Part;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -41,11 +46,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.sound.midi.Patch;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.activation.CommandMap;
-import javax.activation.MailcapCommandMap;
-import javax.mail.Part;
 import org.jsoup.Jsoup;
 import org.jsoup.examples.HtmlToPlainText;
 /**
@@ -73,12 +76,13 @@ public class NewEmail extends javax.swing.JDialog {
     private Folder sent;
     private String messInfo;
     private MimeBodyPart downloadPart;
-    private boolean isSended=false;
+    private Thread thread;
     /**
      * Creates new form NewEmail
      */
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session) {
         super(parent, modal);
+        setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
         initComponents();
         wait.setVisible(false);
         sessionEmail = session;
@@ -176,154 +180,183 @@ public class NewEmail extends javax.swing.JDialog {
      * thread for send mail
      */
     
-    Thread sendMailThread = new Thread(new Runnable() {
+    void setThreadSend(){
+        thread = new Thread(new Runnable() {
 
-        @Override
-        public void run() {
-             try{
-                    Transport transport = session.getTransport("smtp");
-                    transport.connect(hostMail,25,userMail,passWord);
-                    Message message = setContentMail();
-                    message.setFlag(Flags.Flag.SEEN, true);
-                    sent.appendMessages(new Message[]{message});
-                    transport.sendMessage(message, message.getAllRecipients());
-                    JOptionPane.showMessageDialog(null,"send mail success" );
-                    transport.close();
-                    isSended = true;
-                    wait.setVisible(false);
-                    ta_message.setVisible(true);
-                    
-            }catch(RuntimeException ex)
-            {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "can't send mail, check your network");
-            }catch(MessagingException ex){
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(null, "can't send mail, check your network");
+            @Override
+            public void run() {
+
+                try{
+                            Transport transport = session.getTransport("smtp");
+                            transport.connect(hostMail,25,userMail,passWord);
+                            Message message = setContentMail();
+                            message.setFlag(Flags.Flag.SEEN, true);
+                            sent.appendMessages(new Message[]{message});
+                            transport.sendMessage(message, message.getAllRecipients());
+                            final JDialog dialog = new JDialog();
+                            dialog.setAlwaysOnTop(true);    
+                            JOptionPane.showMessageDialog(dialog,"gửi mail thành công");;
+                            transport.close();
+                            wait.setVisible(false);
+                            ta_message.setVisible(true);
+
+
+                }catch(RuntimeException ex)
+                {
+                    ex.printStackTrace();
+                    final JDialog dialog = new JDialog();
+                    dialog.setAlwaysOnTop(true);    
+                    JOptionPane.showMessageDialog(dialog,"không thể gửi mail, làm ơn kiểm tra đường truyền");
+                }catch(MessagingException ex){
+                    ex.printStackTrace();
+                    final JDialog dialog = new JDialog();
+                    dialog.setAlwaysOnTop(true);    
+                    JOptionPane.showMessageDialog(dialog,"không thể gửi mail, làm ơn kiểm tra đường truyền");
+                }
             }
-        }
-    });
+        });
+    }
     
 
     
     /***
      * reply
      */
-    Thread replyMailThread = new Thread(new Runnable() {
+        void setThreadReply(){
+        thread = new Thread(new Runnable() {
 
-        @Override
-        public void run() {
-                try{
-                    Message replyMessage = new MimeMessage(session);
-                    replyMessage = (MimeMessage) message.reply(false);
-                    replyMessage.setFrom(new InternetAddress(userMail));
-                    if(isAttachFile)
+            @Override
+            public void run() {
+                    try{
+
+                                Message replyMessage = new MimeMessage(session);
+                                replyMessage = (MimeMessage) message.reply(false);
+                                replyMessage.setFrom(new InternetAddress(userMail));
+                                if(isAttachFile)
+                                {
+                                    byte[] attachFileData;
+                                    Path path = Paths.get(pathFileAttach);
+                                    attachFileData = Files.readAllBytes(path);
+                                    String[] fileHandle = fileName.split(Pattern.quote("."));
+                                    MimeTypeJavaMail mime = new MimeTypeJavaMail();
+                                    String nameContent =mime.getMimteString(fileHandle[1]);
+                                    Multipart multipart = new MimeMultipart("mixed");
+                                    // set text parts
+                                    MimeBodyPart textPlainPart = new MimeBodyPart();
+                                    textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                                    multipart.addBodyPart(textPlainPart);
+                                    // set body parts
+                                    MimeBodyPart attachFilePart = new MimeBodyPart();
+                                    DataSource source = new FileDataSource(pathFileAttach);
+                                    attachFilePart.setDataHandler(new DataHandler(source));
+                                    attachFilePart.setFileName(fileName);
+                                    attachFilePart.setDisposition("attachment");
+                                    multipart.addBodyPart(attachFilePart);
+                                    replyMessage.setContent(multipart);
+                                }else{
+                                    replyMessage.setText(ta_message.getText());
+                                }
+                                replyMessage.setReplyTo(message.getReplyTo());
+                                if(!cc_addr.equals(""))
+                                replyMessage.addRecipient(Message.RecipientType.CC, new InternetAddress(cc_addr));
+                                replyMessage.setFlag(Flags.Flag.SEEN, true);
+                                replyMessage.setSentDate(new Date());            
+                                sent.appendMessages(new Message[]{replyMessage});
+                                Transport transport = session.getTransport("smtp");
+                                transport.connect(hostMail,25,userMail,passWord);
+                                transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
+                                transport.close();
+                                final JDialog dialog = new JDialog();
+                                dialog.setAlwaysOnTop(true);    
+                                JOptionPane.showMessageDialog(dialog,"gửi mail thành công");;
+                                wait.setVisible(false);
+                                ta_message.setVisible(true);
+
+                    }catch(RuntimeException ex)
                     {
-                        byte[] attachFileData;
-                        Path path = Paths.get(pathFileAttach);
-                        attachFileData = Files.readAllBytes(path);
-                        String[] fileHandle = fileName.split(Pattern.quote("."));
-                        MimeTypeJavaMail mime = new MimeTypeJavaMail();
-                        String nameContent =mime.getMimteString(fileHandle[1]);
-                        Multipart multipart = new MimeMultipart("mixed");
-                        // set text parts
-                        MimeBodyPart textPlainPart = new MimeBodyPart();
-                        textPlainPart.setContent(messageBody,mime.getMimteString("text"));
-                        multipart.addBodyPart(textPlainPart);
-                        // set body parts
-                        MimeBodyPart attachFilePart = new MimeBodyPart();
-                        DataSource source = new FileDataSource(pathFileAttach);
-                        attachFilePart.setDataHandler(new DataHandler(source));
-                        attachFilePart.setFileName(fileName);
-                        attachFilePart.setDisposition("attachment");
-                        multipart.addBodyPart(attachFilePart);
-                        replyMessage.setContent(multipart);
-                    }else{
-                        replyMessage.setText(ta_message.getText());
+                        ex.printStackTrace();
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"không thể gửi mail, làm ơn kiểm tra đường truyền");
+                    }catch(MessagingException ex){
+                        ex.printStackTrace();
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"không thể gửi mail, làm ơn kiểm tra đường truyền");
+                    }catch(IOException ex){
+                        ex.printStackTrace();
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"file đầu vào không đúng");
                     }
-                    replyMessage.setReplyTo(message.getReplyTo());
-                    if(!cc_addr.equals(""))
-                    replyMessage.addRecipient(Message.RecipientType.CC, new InternetAddress(cc_addr));
-                    replyMessage.setFlag(Flags.Flag.SEEN, true);
-                    replyMessage.setSentDate(new Date());            
-                    sent.appendMessages(new Message[]{replyMessage});
-                    Transport transport = session.getTransport("smtp");
-                    transport.connect(hostMail,25,userMail,passWord);
-                    transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
-                    transport.close();
-                    JOptionPane.showMessageDialog(null,"send mail success" );
-                    wait.setVisible(false);
-                    ta_message.setVisible(true);
-                    isSended = true;
-                }catch(RuntimeException ex)
-                {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
-                }catch(MessagingException ex){
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
-                }catch(IOException ex){
-                    ex.printStackTrace();
-                }
-        }
-    });
+            }
+        });
+    }
     /***
      * Thread for foward
      */
-    Thread fowardMailThread = new Thread(new Runnable() {
+        void setThreadFoward(){
+        thread = new Thread(new Runnable() {
 
-        @Override
-        public void run() {
-                try{
-                    String from = userMail;
-                    Message messFoward = new MimeMessage(session);
-                    messFoward.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse(addrTo));
-                    messFoward.setSubject("Fwd: " + message.getSubject());
-                    messFoward.setFrom(new InternetAddress(from));
-                    messFoward.setSentDate(new Date());
-                    if(downloadPart!=null)
+            @Override
+            public void run() {
+                    try{
+
+                                String from = userMail;
+                                Message messFoward = new MimeMessage(session);
+                                messFoward.setRecipients(Message.RecipientType.TO,
+                                InternetAddress.parse(addrTo));
+                                messFoward.setSubject("Fwd: " + message.getSubject());
+                                messFoward.setFrom(new InternetAddress(from));
+                                messFoward.setSentDate(new Date());
+                                if(downloadPart!=null)
+                                {
+                                    MimeTypeJavaMail mime = new MimeTypeJavaMail();
+                                    Multipart multipart = new MimeMultipart("mixed");
+                                    // set text parts
+                                    MimeBodyPart textPlainPart = new MimeBodyPart();
+                                    textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                                    multipart.addBodyPart(textPlainPart);
+                                    // set body parts
+                                    MimeBodyPart attachFilePart = new MimeBodyPart();
+                                    //DataSource source = new FileDataSource();
+            //                        InputStream input = downloadPart.getInputStream();
+                                    DataSource datasource = downloadPart.getDataHandler().getDataSource();
+                                    attachFilePart.setDataHandler(new DataHandler(datasource));
+                                    attachFilePart.setFileName(downloadPart.getFileName());
+                                    attachFilePart.setDisposition("attachment");
+                                    multipart.addBodyPart(attachFilePart);
+                                    messFoward.setContent(multipart);
+                                }else{
+                                    messFoward.setText(messageBody);
+                                }
+                                messFoward.saveChanges();
+                                //sent.appendMessages(new Message[]{messFoward});
+                                Transport transport = session.getTransport("smtp");
+                                transport.connect(hostMail,25,userMail,passWord);
+                                transport.sendMessage(messFoward, messFoward.getAllRecipients());
+                                transport.close();
+                                final JDialog dialog = new JDialog();
+                                dialog.setAlwaysOnTop(true);    
+                                JOptionPane.showMessageDialog(dialog,"gửi mail thành công");;
+                                wait.setVisible(false);
+                                ta_message.setVisible(true);
+
+                    }catch(RuntimeException ex)
                     {
-                        MimeTypeJavaMail mime = new MimeTypeJavaMail();
-                        Multipart multipart = new MimeMultipart("mixed");
-                        // set text parts
-                        MimeBodyPart textPlainPart = new MimeBodyPart();
-                        textPlainPart.setContent(messageBody,mime.getMimteString("text"));
-                        multipart.addBodyPart(textPlainPart);
-                        // set body parts
-                        MimeBodyPart attachFilePart = new MimeBodyPart();
-                        //DataSource source = new FileDataSource();
-//                        InputStream input = downloadPart.getInputStream();
-                        DataSource datasource = downloadPart.getDataHandler().getDataSource();
-                        attachFilePart.setDataHandler(new DataHandler(datasource));
-                        attachFilePart.setFileName(downloadPart.getFileName());
-                        attachFilePart.setDisposition("attachment");
-                        multipart.addBodyPart(attachFilePart);
-                        messFoward.setContent(multipart);
-                    }else{
-                        messFoward.setText(messageBody);
+                        ex.printStackTrace();
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"không thể gửi mail, làm ơn kiểm tra đường truyền");
+                    }catch(MessagingException ex){
+                        ex.printStackTrace();
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"không thể gửi mail, làm ơn kiểm tra đường truyền");
                     }
-                    messFoward.saveChanges();
-                    //sent.appendMessages(new Message[]{messFoward});
-                    Transport transport = session.getTransport("smtp");
-                    transport.connect(hostMail,25,userMail,passWord);
-                    transport.sendMessage(messFoward, messFoward.getAllRecipients());
-                    transport.close();
-                    JOptionPane.showMessageDialog(null,"send mail success" );
-                    wait.setVisible(false);
-                    ta_message.setVisible(true);
-                    isSended = true;
-                }catch(RuntimeException ex)
-                {
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
-                }catch(MessagingException ex){
-                    ex.printStackTrace();
-                    JOptionPane.showMessageDialog(null, "can't send mail, check your network");
-                }
-        }
-    });
-    
+            }
+        });
+    }
     
     /***
      * get data from text field and text area
@@ -508,12 +541,19 @@ public class NewEmail extends javax.swing.JDialog {
         tf_addr = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("SendMail");
         setMinimumSize(new java.awt.Dimension(460, 465));
+        setPreferredSize(new java.awt.Dimension(480, 500));
         setResizable(false);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait1.gif"))); // NOI18N
-        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 150, 390, 270));
+        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait.gif"))); // NOI18N
+        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 140, 410, 270));
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 16)); // NOI18N
         jLabel1.setText("To:");
@@ -604,52 +644,55 @@ public class NewEmail extends javax.swing.JDialog {
     private void button1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_button1ActionPerformed
         // TODO add your handling code here:
 //        sessionEmail.sendMail("nvcuongbkhnict@gmail.com",null,"Send Mail", "Success");
-        if(isfoward)
+        getTextFromUI();
+        if(!(addrTo.equals("")&&cc_addr.equals("")))
         {
-            getTextFromUI();
-            if(sessionEmail.checkAddressMail(addrTo))
-            {
-                setAdapter();
-                fowardMailThread.start();
-//                dispose();
-              //  ta_message.setVisible(false);
-                wait.setVisible(true);
-            }
-            
-        }
-        else if(isReply)
-        {
-            getTextFromUI();
-            setAdapter();
-            replyMailThread.start();
-           // ta_message.setVisible(false);
-            wait.setVisible(true);
-//            dispose();
-        }
-        else{
-            getTextFromUI();
-            setAdapter();
-            if(!(addrTo.equals("")&&cc_addr.equals(""))||!(addrTo==null&&cc_addr==null))
-            {
-                if(subject.equals(""))
+                if(isfoward)
                 {
-                    int check = JOptionPane.showConfirmDialog(null, "your mail don't have dubject. Do you sure send this mail");
-                    if(check == JOptionPane.YES_OPTION)
+                    
+                    if(sessionEmail.checkAddressMail(addrTo))
                     {
-                        sendMailThread.start();
-//                         dispose();
-                     //   ta_message.setVisible(false);
+                        setAdapter();
+                        setThreadFoward();
+                        thread.start();
                         wait.setVisible(true);
                     }
-                }else{
-                    sendMailThread.start();
-                  //  dispose();
-                //    ta_message.setVisible(false);
+
+                }
+                else if(isReply)
+                {
+                    setAdapter();
+                    setThreadReply();
+                    thread.start();
                     wait.setVisible(true);
                 }
-            }else{
-                JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
-            }
+                else{
+                    setAdapter();
+
+                        if(subject.equals(""))
+                        {
+//                            int check = JOptionPane.showConfirmDialog(null, "your mail don't have subject. Do you sure send this mail");
+                            final JDialog dialog = new JDialog();
+                            dialog.setAlwaysOnTop(true);    
+                            int check = JOptionPane.showConfirmDialog(dialog,"mail của bạn không có tiêu đề, có chắc muốn gửi");
+                            if(check == JOptionPane.YES_OPTION)
+                            {
+                                setThreadSend();
+                                thread.start();
+                                wait.setVisible(true);
+                            }
+                        }else{
+                            setThreadSend();
+                            thread.start();
+                            wait.setVisible(true);
+                        }
+                    
+                }
+        }else{
+//            JOptionPane.showMessageDialog(null, "Your mail don't have address mail to");
+              final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"xin nhập địa chỉ mail đến");
         }
     }//GEN-LAST:event_button1ActionPerformed
 
@@ -657,15 +700,16 @@ public class NewEmail extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_tf_ccActionPerformed
 
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosed
+
     
     String processDataMessReplyFoward(){
         try {
             if(isReply)
             {
                     String mess = "";
-//                    String mess= "Quoting " + message.getReplyTo()[0].toString() + ":" +System.getProperty("line.separator")+ "  " + System.getProperty("line.separator");
-//                    messInfo = messInfo.replace(System.getProperty("line.separator"),System.getProperty("line.separator") + "    " + ">");
-//                    mess = mess  + "    " + ">" + messInfo;
                     return mess;
             }
             else if(isfoward)

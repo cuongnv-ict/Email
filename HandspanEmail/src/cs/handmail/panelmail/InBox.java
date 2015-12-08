@@ -20,6 +20,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Message;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
@@ -170,9 +171,14 @@ public class InBox extends javax.swing.JPanel {
                             }
 
                         });
-                        receveiMail.show();
+                        receveiMail.setAlwaysOnTop(true);
+                        receveiMail.setVisible(true);
                     }else{
-                        JOptionPane.showMessageDialog(null, "message opened");
+
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"Mail đã được mở");
+                        
                     }
                 }
             }
