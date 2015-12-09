@@ -3,24 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-<<<<<<< HEAD
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/processtable/TableListAcount.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/mail/AccuracyEmail.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/dailog/LogIn.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/panelmail/StatisticMail.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/mail/SessionEmail.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/processtable/TableListEmail.java</file>
-=======
             <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/dailog/ReceiveMail.java</file>
-            <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/dailog/LogIn.java</file>
             <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/panelmail/InBox.java</file>
+            <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/dailog/Admin.java</file>
             <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/dailog/NewEmail.java</file>
             <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/panelmail/ListPerson.java</file>
-<<<<<<< HEAD
-            <file>file:/C:/Users/Venus-NS/Desktop/Email/HandspanEmail/src/cs/handmail/panelmail/StatisticMail.java</file>
->>>>>>> c970f2b3ead3ba95f2a8ed98eb3a4af3610bbc7a
-=======
->>>>>>> e1e36ed83720a682685532329385db1bd4f65479
         </group>
     </open-files>
 </project-private>

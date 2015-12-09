@@ -103,7 +103,7 @@ public class NewEmail extends javax.swing.JDialog {
         CommandMap.setDefaultCommandMap(mc);
         
     }
-
+    
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session,Message mess,String messInfo,MimeBodyPart downloadPart,boolean reply,boolean foward) {
         super(parent, modal);
         initComponents();
@@ -143,6 +143,12 @@ public class NewEmail extends javax.swing.JDialog {
         mc.addMailcap("message/rfc822;; x-java-content-handler=com.sun.mail.handlers.message_rfc822");
         CommandMap.setDefaultCommandMap(mc);
         
+    }
+    
+    public void setAddress(String address)
+    {
+        addrTo = address;
+        tf_addr.setText(addrTo);
     }
     /**
      * set data for mail rep
