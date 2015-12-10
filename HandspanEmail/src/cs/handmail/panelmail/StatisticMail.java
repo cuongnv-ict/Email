@@ -124,7 +124,6 @@ public class StatisticMail extends javax.swing.JPanel {
             }
         };
         jPanel1 = new javax.swing.JPanel();
-        textField1 = new java.awt.TextField();
         jLabel1 = new javax.swing.JLabel();
         month = new javax.swing.JComboBox<>();
         year = new javax.swing.JComboBox<>();
@@ -159,8 +158,6 @@ public class StatisticMail extends javax.swing.JPanel {
         jPanel1.setBackground(java.awt.SystemColor.activeCaption);
         jPanel1.setPreferredSize(new java.awt.Dimension(419, 43));
 
-        textField1.setPreferredSize(new java.awt.Dimension(230, 32));
-
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Time:");
 
@@ -191,16 +188,11 @@ public class StatisticMail extends javax.swing.JPanel {
                 .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 220, Short.MAX_VALUE)
-                .addComponent(load)
-                .addGap(1, 1, 1)
-                .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(load))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(13, 13, 13)
-                .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(load, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -216,7 +208,7 @@ public class StatisticMail extends javax.swing.JPanel {
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
@@ -245,7 +237,6 @@ public class StatisticMail extends javax.swing.JPanel {
     }//GEN-LAST:event_yearItemStateChanged
 
     public void runSelected() {
-        System.err.println("sdfdsfsdf");
         load.setVisible(true);
         if (th.isAlive()) {
             th.stop();
@@ -268,7 +259,6 @@ public class StatisticMail extends javax.swing.JPanel {
     private javax.swing.JLabel load;
     private javax.swing.JComboBox<String> month;
     private javax.swing.JTable tableAcount;
-    private java.awt.TextField textField1;
     private javax.swing.JComboBox<String> year;
     // End of variables declaration//GEN-END:variables
 }

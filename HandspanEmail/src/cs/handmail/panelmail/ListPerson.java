@@ -36,12 +36,13 @@ import sun.reflect.generics.tree.Tree;
  * @author Nguyen Van Cuong
  */
 public class ListPerson extends javax.swing.JPanel {
-
+    
     private ListAcountFile listAcountFile;
     private SessionEmail sessionEmail;
     private Properties properties;
     private TableListAcount tableListAcount;
     private Vector<String> _addressMailClick;
+
     /**
      * Creates new form ListPerson
      *
@@ -57,7 +58,7 @@ public class ListPerson extends javax.swing.JPanel {
         _addressMailClick = new Vector<String>();
         clickListPersonListener();
     }
-
+    
     private void updateAcount() {
         properties = listAcountFile.readListAcount();
         if (properties != null) {
@@ -69,50 +70,46 @@ public class ListPerson extends javax.swing.JPanel {
         }
     }
     
-    void addToVector(String _address)
-    {
+    void addToVector(String _address) {
         _addressMailClick.add(_address);
     }
     
-    boolean checkAddrVector(String _address){
-        for(int i =0; i< _addressMailClick.size(); i++)
-        {
-            if(_addressMailClick.get(i).equals(_address))
+    boolean checkAddrVector(String _address) {
+        for (int i = 0; i < _addressMailClick.size(); i++) {
+            if (_addressMailClick.get(i).equals(_address)) {
                 return true;
+            }
         }
         return false;
     }
     
-    void removeAddrVector(String _address){
-        for(int i =0; i< _addressMailClick.size(); i++)
-        {
-            if(_addressMailClick.get(i).equals(_address))
-            {
+    void removeAddrVector(String _address) {
+        for (int i = 0; i < _addressMailClick.size(); i++) {
+            if (_addressMailClick.get(i).equals(_address)) {
                 _addressMailClick.removeElementAt(i);
                 break;
             }
         }
     }
     
-    void clickListPersonListener(){
+    void clickListPersonListener() {
         tableAcount.addMouseListener(new MouseAdapter() {
-
+            
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e); //To change body of generated methods, choose Tools | Templates.
-                   JTable table =(JTable) e.getSource();
+                JTable table = (JTable) e.getSource();
                 Point p = e.getPoint();
                 
                 int row = table.rowAtPoint(p);
                 if (e.getClickCount() == 2) {
-                    String addr =tableAcount.getValueAt(row, 2).toString();
-                    if(!checkAddrVector(addr))
-                    {
+                    String addr = tableAcount.getValueAt(row, 2).toString();
+                    if (!checkAddrVector(addr)) {
                         NewEmail email = new NewEmail(null, true, sessionEmail);
                         email.setAddress(addr);
                         addToVector(addr);
                         email.addWindowListener(new WindowAdapter() {
-
+                            
                             @Override
                             public void windowClosed(WindowEvent e) {
                                 super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
@@ -123,11 +120,11 @@ public class ListPerson extends javax.swing.JPanel {
                         email.setAlwaysOnTop(true);
                         email.setVisible(true);
                         
-                    }else{
-
+                    } else {
+                        
                         final JDialog dialog = new JDialog();
-                        dialog.setAlwaysOnTop(true);    
-                        JOptionPane.showMessageDialog(dialog,"Mail đã được mở");
+                        dialog.setAlwaysOnTop(true);                        
+                        JOptionPane.showMessageDialog(dialog, "Mail đã được mở");
                         
                     }
                 }
@@ -135,6 +132,7 @@ public class ListPerson extends javax.swing.JPanel {
             
         });
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -305,7 +303,7 @@ public class ListPerson extends javax.swing.JPanel {
                 }
             }
             tableListAcount.listAcount(tableAcount, map);
-
+            
         }
     }//GEN-LAST:event_jLabel4MouseClicked
 
@@ -319,11 +317,11 @@ public class ListPerson extends javax.swing.JPanel {
             }
         }
         if (mails.isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Hãy chọn tài khoản để xóa.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Hãy chọn tài khoản để chỉnh sửa.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
         } else if (mails.size() != 1) {
-            JOptionPane.showMessageDialog(null, "Bạn chỉ được phép  chỉnh sửa 1 mail.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Bạn chỉ được phép chỉnh sửa 1 mail.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            EditAcount e = new EditAcount(null, true, tableAcount, sessionEmail);
+            EditAcount e = new EditAcount(null, true, mails.get(0));
             e.setVisible(true);
         }
     }//GEN-LAST:event_jLabel3MouseClicked

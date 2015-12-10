@@ -13,6 +13,8 @@ import cs.handmail.panelmail.StatisticMail;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -53,7 +55,20 @@ public class CenterMail extends javax.swing.JFrame {
         flagsMail = CUSTOMER;
         rightComponet = new InBox(CUSTOMER, sessionEmail);
         Email.setRightComponent(rightComponet);
-
+        Thread t = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        sessionEmail.TimeOut();
+                        Thread.sleep(60000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(CenterMail.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        };
+        t.start();
     }
 
     private void setTreeClick() {
@@ -266,7 +281,7 @@ public class CenterMail extends javax.swing.JFrame {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         // TODO add your handling code here:
-        Admin admin = new Admin(null,true);
+        Admin admin = new Admin(null, true);
         admin.setVisible(true);
         sessionEmail.checkAdmin();
     }//GEN-LAST:event_jMenuItem3ActionPerformed

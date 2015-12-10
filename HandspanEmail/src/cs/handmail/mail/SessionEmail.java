@@ -189,6 +189,21 @@ public class SessionEmail {
         return smtpSession;
     }
 
+    public void TimeOut(){
+        for(String key : mapsession.keySet()){
+            Map m = mapsession.get(key);
+            Folder in = (Folder) m.get("inbox");
+            Folder se = (Folder) m.get("sent");
+            if(in.isOpen() && se.isOpen()){
+                try {
+                    in.getMessageCount();
+                    se.getMessageCount();
+                } catch (MessagingException ex) {
+                    Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }
     public Map<String, Integer> addressEmail() {
         Map<String, Integer> mails = new TreeMap<>();
         try {
@@ -224,10 +239,13 @@ public class SessionEmail {
         Map<String, Message[]> map = new HashMap<>();
         try {
             Folder in = null, se = null;
+            Map<String, Folder> m = mapsession.get(mail);
             if (mapsession.get(mail) != null) {
-                Map<String, Folder> m = mapsession.get(mail);
                 in = m.get("inbox");
                 se = m.get("sent");
+            }
+            if (in != null && se != null && in.isOpen() && se.isOpen()) {
+                
             } else {
                 Properties prop = new Properties();
                 prop.put("mail.imap.host", hostmail);
@@ -246,7 +264,7 @@ public class SessionEmail {
                 in.open(Folder.READ_ONLY);
                 se = in.getFolder("sent-mail");
                 se.open(Folder.READ_ONLY);
-                Map<String, Folder> m = new HashMap<>();
+                m = new HashMap<>();
                 m.put("inbox", in);
                 m.put("sent", se);
                 mapsession.put(mail, m);
