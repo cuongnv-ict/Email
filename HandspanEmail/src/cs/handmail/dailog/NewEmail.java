@@ -7,7 +7,9 @@ package cs.handmail.dailog;
 
 import cs.handmail.file.DataUserFile;
 import cs.handmail.mail.SessionEmail;
+import java.awt.Color;
 import java.awt.Dialog;
+import static java.awt.SystemColor.text;
 import java.awt.Toolkit;
 import java.awt.event.WindowListener;
 import java.io.ByteArrayInputStream;
@@ -50,6 +52,10 @@ import javax.sound.midi.Patch;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 import org.jsoup.Jsoup;
 import org.jsoup.examples.HtmlToPlainText;
 /**
@@ -78,6 +84,7 @@ public class NewEmail extends javax.swing.JDialog {
     private String messInfo;
     private MimeBodyPart downloadPart;
     private Thread thread;
+    private boolean isfirstkick=true;
     /**
      * Creates new form NewEmail
      */
@@ -134,6 +141,8 @@ public class NewEmail extends javax.swing.JDialog {
             ta_message.setEditable(true);
             attach.setVisible(false);
             this.downloadPart = downloadPart;
+            ta_message.setCaretPosition(0);
+           
         }
         
         MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap();
@@ -170,11 +179,9 @@ public class NewEmail extends javax.swing.JDialog {
     void setDataForFoward()
     {
         try{
+            processDataMessReplyFoward();
             tf_subject.setText(message.getSubject());
-            ta_message.setText(messInfo);
-            ta_message.setText(processDataMessReplyFoward());
-//            ta_message.setCaretPosition( ta_message.getCaretPosition() + 1 );
-        }catch(MessagingException ex)
+         }catch(MessagingException ex)
         {
             JOptionPane.showMessageDialog(null, "mail eror");
             ex.printStackTrace();
@@ -193,11 +200,11 @@ public class NewEmail extends javax.swing.JDialog {
             public void run() {
 
                 try{
-                            Transport transport = session.getTransport("smtp");
-                            transport.connect(hostMail,25,userMail,passWord);
                             Message message = setContentMail();
                             message.setFlag(Flags.Flag.SEEN, true);
                             sent.appendMessages(new Message[]{message});
+                            Transport transport = session.getTransport("smtp");
+                            transport.connect(hostMail,25,userMail,passWord);
                             transport.sendMessage(message, message.getAllRecipients());
                             transport.close();
                             dispose();
@@ -348,7 +355,7 @@ public class NewEmail extends javax.swing.JDialog {
                                     messFoward.setText(messageBody);
                                 }
                                 messFoward.saveChanges();
-                                //sent.appendMessages(new Message[]{messFoward});
+                                sent.appendMessages(new Message[]{messFoward});
                                 Transport transport = session.getTransport("smtp");
                                 transport.connect(hostMail,25,userMail,passWord);
                                 transport.sendMessage(messFoward, messFoward.getAllRecipients());
@@ -561,7 +568,6 @@ public class NewEmail extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("SendMail");
         setMinimumSize(new java.awt.Dimension(460, 465));
-        setPreferredSize(new java.awt.Dimension(480, 500));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
@@ -615,6 +621,11 @@ public class NewEmail extends javax.swing.JDialog {
         ta_message.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         ta_message.setLineWrap(true);
         ta_message.setRows(5);
+        ta_message.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                ta_messageMouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(ta_message);
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 130, 450, 300));
@@ -722,6 +733,15 @@ public class NewEmail extends javax.swing.JDialog {
         // TODO add your handling code here:
     }//GEN-LAST:event_formWindowClosed
 
+    private void ta_messageMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ta_messageMouseClicked
+        // TODO add your handling code here:
+        if(isfirstkick)
+        {
+             ta_message.setCaretPosition(0);
+             isfirstkick = false;
+        }
+    }//GEN-LAST:event_ta_messageMouseClicked
+
     
     String processDataMessReplyFoward(){
         try {
@@ -732,7 +752,8 @@ public class NewEmail extends javax.swing.JDialog {
             }
             else if(isfoward)
             {
-                    String mess = "----- Forwarded message from " + message.getFrom()[0].toString() + "-----";
+                    String mess =  System.getProperty("line.separator");
+                    mess += "----- Forwarded message from " + message.getFrom()[0].toString() + "-----";
                     mess += System.getProperty("line.separator");
                     mess += System.getProperty("line.separator") + "Date:" +" "+ message.getSentDate();
                     mess += System.getProperty("line.separator") + "From:" +" "+ message.getFrom()[0].toString();
@@ -740,9 +761,22 @@ public class NewEmail extends javax.swing.JDialog {
                     mess += System.getProperty("line.separator") + "Subject:" +" "+ message.getSubject();
                     mess += System.getProperty("line.separator") + "To:" +" "+ userMail;
                     mess += System.getProperty("line.separator") + " " +System.getProperty("line.separator");
+                    
                     mess += messInfo;
                     mess += System.getProperty("line.separator");
                     mess += "----- End forwarded message -----";
+                    ta_message.setText(mess);
+//                    Highlighter highlighter = ta_message.getHighlighter();
+//                    HighlightPainter painter = 
+//                           new DefaultHighlighter.DefaultHighlightPainter(Color.pink);
+//                    int p0 = mess.indexOf("Fowarded");
+//                    
+//                    try {
+//                        highlighter.addHighlight(p0, mess.length(), painter );
+//                    } catch (BadLocationException ex) {
+//                        Logger.getLogger(NewEmail.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+                    
                     return mess;
             }  
         } catch (MessagingException ex) {

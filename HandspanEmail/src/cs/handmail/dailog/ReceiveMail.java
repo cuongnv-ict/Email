@@ -8,6 +8,7 @@ package cs.handmail.dailog;
 
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.panelmail.InBox;
+import cs.handmail.processtable.ApproximatMatching;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -40,7 +41,7 @@ public class ReceiveMail extends javax.swing.JDialog {
     private Message message;
     private SessionEmail sessionEmail;
     private String subject;
-    private String body;
+    private String body="";
     private String dateSend;
     private String addFrom;
     private MimeBodyPart downloadPart=null;
@@ -68,6 +69,7 @@ public class ReceiveMail extends javax.swing.JDialog {
             if(isAttachFile) attach.setVisible(true);
             else attach.setVisible(false);
             message.setFlag(Flags.Flag.SEEN, true);
+            wait.setVisible(false);
         } catch (MessagingException ex) {
             Logger.getLogger(ReceiveMail.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -83,17 +85,65 @@ public class ReceiveMail extends javax.swing.JDialog {
         public void run() {
                  
             try {
+                wait.setVisible(true);
                 downloadPart.saveFile(pathFolder+ File.separator + downloadPart.getFileName());
-                JOptionPane.showMessageDialog(null, "Download Complete");
+                final JDialog dialog = new JDialog();
+                dialog.setAlwaysOnTop(true); 
+                wait.setVisible(false);
+                JOptionPane.showMessageDialog(dialog,"download hoàn thành");
             } catch (IOException ex) {
-                JOptionPane.showMessageDialog(null, "Download fail");
+                final JDialog dialog = new JDialog();
+                dialog.setAlwaysOnTop(true); 
+                wait.setVisible(false);
+                JOptionPane.showMessageDialog(dialog,"download lỗi");
                 Logger.getLogger(ReceiveMail.class.getName()).log(Level.SEVERE, null, ex);
             } catch (MessagingException ex) {
-                JOptionPane.showMessageDialog(null, "Download fail");
+                final JDialog dialog = new JDialog();
+                dialog.setAlwaysOnTop(true); 
+                wait.setVisible(false);
+                JOptionPane.showMessageDialog(dialog,"download lỗi");
                 Logger.getLogger(ReceiveMail.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     });
+    
+    void readFile(Multipart multipart)
+    {
+        try {
+            int num = multipart.getCount();
+            for(int j =0; j< num;j++)
+            {
+                MimeBodyPart temp =(MimeBodyPart) multipart.getBodyPart(j);
+                        System.out.println(temp.getDisposition());
+                        if(Part.ATTACHMENT.equalsIgnoreCase(temp.getDisposition())){
+                            downloadPart = temp;
+                            isAttachFile = true;
+                            break;
+                        }else if(temp.getContentType().contains("text/plain")&&temp.getContentType().contains("plain"))
+                        {
+                            body +=(String) temp.getContent();
+                        }else if(temp.getContentType().contains("text/html")&&temp.getContentType().contains("html"))
+                        {
+                            
+
+                            String plaintext = new HtmlToPlainText().getPlainText(Jsoup.parse((String)temp.getContent()));
+//                            ApproximatMatching approximatMatching = new ApproximatMatching(body);
+                            if(!body.contains(plaintext.substring(0,plaintext.length()-2)))
+                            {
+                                body += plaintext; 
+                            }
+                        }else if(temp.getContentType().contains("multipart")){
+                            readFile((Multipart) temp.getContent());
+                            
+                        }
+            }
+        } catch (MessagingException ex) {
+            Logger.getLogger(ReceiveMail.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex){
+            ex.printStackTrace();
+        }
+        
+    }
     
     void updateData()
     {
@@ -108,29 +158,10 @@ public class ReceiveMail extends javax.swing.JDialog {
             String  contentType = message.getContentType();
             String  messageContent = "";
             if(contentType.contains("multipart")){
+               
                     Multipart multipart =(Multipart) message.getContent();
-                    int num = multipart.getCount();
-                    for(int j = 0; j< num ; j++){
-                        MimeBodyPart temp =(MimeBodyPart) multipart.getBodyPart(j);
-                        System.out.println(temp.getDisposition());
-                        if(Part.ATTACHMENT.equalsIgnoreCase(temp.getDisposition())){
-                            downloadPart = temp;
-                            isAttachFile = true;
-                            break;
-                        }else if(temp.getContentType().contains("text/plain")&&temp.getContentType().contains("plain"))
-                        {
-                            body =(String) temp.getContent();
-                            ta_message.setText(body);
-                        }else if(temp.getContentType().contains("text/html")&&temp.getContentType().contains("html"))
-                        {
-                            body =(String) temp.getContent();
-//                            String plaintext = Jsoup.parse(body).text();
-                            String plaintext = new HtmlToPlainText().getPlainText(Jsoup.parse(body));
-                            ta_message.setText(plaintext);
-                            
-
-                        }
-                    }
+                     readFile(multipart);
+                     ta_message.setText(body);
                 }
             else {
                 if(message.getContentType()!=null&&message.getContentType().contains("text/plain"))
@@ -159,6 +190,7 @@ public class ReceiveMail extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        wait = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
         tf_From = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
@@ -178,6 +210,9 @@ public class ReceiveMail extends javax.swing.JDialog {
         setPreferredSize(new java.awt.Dimension(480, 500));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+
+        wait.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/wait.gif"))); // NOI18N
+        getContentPane().add(wait, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 130, 410, 270));
 
         jLabel1.setFont(new java.awt.Font("Times New Roman", 1, 20)); // NOI18N
         jLabel1.setLabelFor(tf_From);
@@ -262,7 +297,6 @@ public class ReceiveMail extends javax.swing.JDialog {
             File selectedFile = fileChooser.getSelectedFile();
             pathFolder = selectedFile.getAbsolutePath();
             downloadFile.start();
-            JOptionPane.showMessageDialog(null, "download complete");
         }
     }//GEN-LAST:event_attachMouseClicked
 
@@ -341,5 +375,6 @@ public class ReceiveMail extends javax.swing.JDialog {
     private javax.swing.JTextField tf_From;
     private javax.swing.JTextField tf_date;
     private javax.swing.JTextField tf_subject;
+    private javax.swing.JLabel wait;
     // End of variables declaration//GEN-END:variables
 }
