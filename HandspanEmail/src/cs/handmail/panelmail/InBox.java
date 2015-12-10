@@ -91,27 +91,38 @@ public class InBox extends javax.swing.JPanel {
 
     public void openMessage(int numberOfmessageInbox)
     {
+        
         messageDisplay.add(numberOfmessageInbox);
     }
     
     public void closeMessage(int numberOfmessageInbox)
     {
-        int i =0;
-        while(i<messageDisplay.size())
+        try{
+            int i =0;
+            while(i<messageDisplay.size())
+            {
+                if((int)messageDisplay.get(i) == numberOfmessageInbox) break;
+                i++;
+            }
+            messageDisplay.removeElementAt(i);
+        }catch(Exception ex)
         {
-            if((int)messageDisplay.get(i) == numberOfmessageInbox) break;
-            i++;
+            
         }
-        messageDisplay.removeElementAt(i);
     }
     
     boolean checkMessage(int numberOfmessageInbox)
     {
-        for(int i = 0; i<messageDisplay.size();i++)
+        try{
+            for(int i = 0; i<messageDisplay.size();i++)
+            {
+                if((int)messageDisplay.get(i)== numberOfmessageInbox) return true;
+            }
+            return false;
+        }catch(Exception ex)
         {
-            if((int)messageDisplay.get(i)== numberOfmessageInbox) return true;
+            return false;
         }
-        return false;
     }
     
     public void updateEmail() {
