@@ -321,7 +321,7 @@ public class ListPerson extends javax.swing.JPanel {
         } else if (mails.size() != 1) {
             JOptionPane.showMessageDialog(null, "Bạn chỉ được phép chỉnh sửa 1 mail.", "Delete Acount", JOptionPane.INFORMATION_MESSAGE);
         } else {
-            EditAcount e = new EditAcount(null, true, mails.get(0));
+            EditAcount e = new EditAcount(null, true, mails.get(0),sessionEmail);
             e.setVisible(true);
         }
     }//GEN-LAST:event_jLabel3MouseClicked

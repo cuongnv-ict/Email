@@ -158,6 +158,9 @@
             <Property name="lineWrap" type="boolean" value="true"/>
             <Property name="rows" type="int" value="5"/>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="ta_messageMouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
