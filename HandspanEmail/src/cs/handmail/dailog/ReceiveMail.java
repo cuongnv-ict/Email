@@ -239,6 +239,7 @@ public class ReceiveMail extends javax.swing.JDialog {
         });
         getContentPane().add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(378, 442, 70, 25));
 
+        ta_message.setEditable(false);
         ta_message.setColumns(20);
         ta_message.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         ta_message.setLineWrap(true);
@@ -280,6 +281,8 @@ public class ReceiveMail extends javax.swing.JDialog {
             });
             email.setAlwaysOnTop(true);
             email.setVisible(true);
+            parentFream.closeMessage(numberMess);
+            dispose();
 //            email.show();
         }else{
               final JDialog dialog = new JDialog();
@@ -304,6 +307,8 @@ public class ReceiveMail extends javax.swing.JDialog {
                 
             });
             email.setVisible(true);
+            parentFream.closeMessage(numberMess);
+            dispose();
 //            email.show();
         }else{
               final JDialog dialog = new JDialog();

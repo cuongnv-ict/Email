@@ -32,6 +32,7 @@ import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.activation.MailcapCommandMap;
 import javax.activation.MimeType;
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Flags;
 import javax.mail.Folder;
@@ -103,7 +104,7 @@ public class NewEmail extends javax.swing.JDialog {
         CommandMap.setDefaultCommandMap(mc);
         
     }
-
+    
     public NewEmail(java.awt.Frame parent, boolean modal,SessionEmail session,Message mess,String messInfo,MimeBodyPart downloadPart,boolean reply,boolean foward) {
         super(parent, modal);
         initComponents();
@@ -130,7 +131,7 @@ public class NewEmail extends javax.swing.JDialog {
         else if (foward)
         {
             setDataForFoward();
-            ta_message.setEditable(false);
+            ta_message.setEditable(true);
             attach.setVisible(false);
             this.downloadPart = downloadPart;
         }
@@ -142,7 +143,12 @@ public class NewEmail extends javax.swing.JDialog {
         mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed");
         mc.addMailcap("message/rfc822;; x-java-content-handler=com.sun.mail.handlers.message_rfc822");
         CommandMap.setDefaultCommandMap(mc);
-        
+    }
+    
+    public void setAddress(String address)
+    {
+        addrTo = address;
+        tf_addr.setText(addrTo);
     }
     /**
      * set data for mail rep
@@ -193,13 +199,14 @@ public class NewEmail extends javax.swing.JDialog {
                             message.setFlag(Flags.Flag.SEEN, true);
                             sent.appendMessages(new Message[]{message});
                             transport.sendMessage(message, message.getAllRecipients());
+                            transport.close();
+                            dispose();
                             final JDialog dialog = new JDialog();
                             dialog.setAlwaysOnTop(true);    
                             JOptionPane.showMessageDialog(dialog,"gửi mail thành công");;
-                            transport.close();
                             wait.setVisible(false);
                             ta_message.setVisible(true);
-
+                            
 
                 }catch(RuntimeException ex)
                 {
@@ -232,6 +239,7 @@ public class NewEmail extends javax.swing.JDialog {
                                 Message replyMessage = new MimeMessage(session);
                                 replyMessage = (MimeMessage) message.reply(false);
                                 replyMessage.setFrom(new InternetAddress(userMail));
+                                
                                 if(isAttachFile)
                                 {
                                     byte[] attachFileData;
@@ -256,9 +264,14 @@ public class NewEmail extends javax.swing.JDialog {
                                 }else{
                                     replyMessage.setText(ta_message.getText());
                                 }
-                                replyMessage.setReplyTo(message.getReplyTo());
+                                Address[] address={new InternetAddress(userMail)};
+                                replyMessage.setReplyTo(address);
                                 if(!cc_addr.equals(""))
                                 replyMessage.addRecipient(Message.RecipientType.CC, new InternetAddress(cc_addr));
+                                if(subject.contains("RE:"))
+                                    replyMessage.setSubject(subject);
+                                else
+                                    replyMessage.setSubject("RE:"+subject);
                                 replyMessage.setFlag(Flags.Flag.SEEN, true);
                                 replyMessage.setSentDate(new Date());            
                                 sent.appendMessages(new Message[]{replyMessage});
@@ -266,6 +279,7 @@ public class NewEmail extends javax.swing.JDialog {
                                 transport.connect(hostMail,25,userMail,passWord);
                                 transport.sendMessage(replyMessage, replyMessage.getAllRecipients());
                                 transport.close();
+                                dispose();
                                 final JDialog dialog = new JDialog();
                                 dialog.setAlwaysOnTop(true);    
                                 JOptionPane.showMessageDialog(dialog,"gửi mail thành công");;
@@ -306,7 +320,10 @@ public class NewEmail extends javax.swing.JDialog {
                                 Message messFoward = new MimeMessage(session);
                                 messFoward.setRecipients(Message.RecipientType.TO,
                                 InternetAddress.parse(addrTo));
-                                messFoward.setSubject("Fwd: " + message.getSubject());
+                                if(message.getSubject().contains("Fwd:"))
+                                    messFoward.setSubject(message.getSubject());
+                                else
+                                    messFoward.setSubject("Fwd: " + message.getSubject());
                                 messFoward.setFrom(new InternetAddress(from));
                                 messFoward.setSentDate(new Date());
                                 if(downloadPart!=null)
@@ -336,6 +353,7 @@ public class NewEmail extends javax.swing.JDialog {
                                 transport.connect(hostMail,25,userMail,passWord);
                                 transport.sendMessage(messFoward, messFoward.getAllRecipients());
                                 transport.close();
+                                dispose();
                                 final JDialog dialog = new JDialog();
                                 dialog.setAlwaysOnTop(true);    
                                 JOptionPane.showMessageDialog(dialog,"gửi mail thành công");;
@@ -718,7 +736,7 @@ public class NewEmail extends javax.swing.JDialog {
                     mess += System.getProperty("line.separator");
                     mess += System.getProperty("line.separator") + "Date:" +" "+ message.getSentDate();
                     mess += System.getProperty("line.separator") + "From:" +" "+ message.getFrom()[0].toString();
-                    mess += System.getProperty("line.separator") + "Reply-To:" +" "+ message.getReplyTo()[0].toString();
+//                    mess += System.getProperty("line.separator") + "Reply-To:" +" "+ message.getReplyTo()[0].toString();
                     mess += System.getProperty("line.separator") + "Subject:" +" "+ message.getSubject();
                     mess += System.getProperty("line.separator") + "To:" +" "+ userMail;
                     mess += System.getProperty("line.separator") + " " +System.getProperty("line.separator");

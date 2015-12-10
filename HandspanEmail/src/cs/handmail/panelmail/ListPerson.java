@@ -5,21 +5,31 @@
  */
 package cs.handmail.panelmail;
 
+import cs.handmail.dailog.AddAcount;
+import cs.handmail.dailog.EditAcount;
+import cs.handmail.dailog.NewEmail;
+import cs.handmail.dailog.ReceiveMail;
 import cs.handmail.file.ListAcountFile;
 import cs.handmail.mail.SessionEmail;
 import cs.handmail.processtable.TableListAcount;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.Vector;
+import javax.swing.JDialog;
 import javax.swing.JOptionPane;
-import sun.reflect.generics.tree.Tree;
-import cs.handmail.dailog.AddAcount;
-import cs.handmail.dailog.EditAcount;
-import java.awt.Color;
-import java.awt.Component;
-import java.util.ArrayList;
+import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
+import sun.reflect.generics.tree.Tree;
 
 /**
  *
@@ -31,7 +41,7 @@ public class ListPerson extends javax.swing.JPanel {
     private SessionEmail sessionEmail;
     private Properties properties;
     private TableListAcount tableListAcount;
-
+    private Vector<String> _addressMailClick;
     /**
      * Creates new form ListPerson
      *
@@ -44,6 +54,8 @@ public class ListPerson extends javax.swing.JPanel {
         tableListAcount = new TableListAcount();
         load.setVisible(false);
         updateAcount();
+        _addressMailClick = new Vector<String>();
+        clickListPersonListener();
     }
 
     private void updateAcount() {
@@ -56,7 +68,73 @@ public class ListPerson extends javax.swing.JPanel {
             tableListAcount.listAcount(tableAcount, map);
         }
     }
+    
+    void addToVector(String _address)
+    {
+        _addressMailClick.add(_address);
+    }
+    
+    boolean checkAddrVector(String _address){
+        for(int i =0; i< _addressMailClick.size(); i++)
+        {
+            if(_addressMailClick.get(i).equals(_address))
+                return true;
+        }
+        return false;
+    }
+    
+    void removeAddrVector(String _address){
+        for(int i =0; i< _addressMailClick.size(); i++)
+        {
+            if(_addressMailClick.get(i).equals(_address))
+            {
+                _addressMailClick.removeElementAt(i);
+                break;
+            }
+        }
+    }
+    
+    void clickListPersonListener(){
+        tableAcount.addMouseListener(new MouseAdapter() {
 
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e); //To change body of generated methods, choose Tools | Templates.
+                   JTable table =(JTable) e.getSource();
+                Point p = e.getPoint();
+                
+                int row = table.rowAtPoint(p);
+                if (e.getClickCount() == 2) {
+                    String addr =tableAcount.getValueAt(row, 2).toString();
+                    if(!checkAddrVector(addr))
+                    {
+                        NewEmail email = new NewEmail(null, true, sessionEmail);
+                        email.setAddress(addr);
+                        addToVector(addr);
+                        email.addWindowListener(new WindowAdapter() {
+
+                            @Override
+                            public void windowClosed(WindowEvent e) {
+                                super.windowClosed(e); //To change body of generated methods, choose Tools | Templates.
+                                removeAddrVector(addr);
+                            }
+                            
+                        });
+                        email.setAlwaysOnTop(true);
+                        email.setVisible(true);
+                        
+                    }else{
+
+                        final JDialog dialog = new JDialog();
+                        dialog.setAlwaysOnTop(true);    
+                        JOptionPane.showMessageDialog(dialog,"Mail đã được mở");
+                        
+                    }
+                }
+            }
+            
+        });
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

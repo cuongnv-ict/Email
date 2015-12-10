@@ -60,10 +60,12 @@ public class SessionEmail {
     private Session smtpSession = null;
     private AdminFile adminFile;
     private boolean isAdmin;
+    private Map<String, Map<String, Folder>> mapsession;
 
     public SessionEmail() {
         accuracyEmail = new AccuracyEmail();
         adminFile = new AdminFile();
+        mapsession = new HashMap<>();
     }
 
     public boolean isAdmin() {
@@ -218,89 +220,37 @@ public class SessionEmail {
         return mails;
     }
 
-    public Map<String, Message[]> statisticAddressEmail(int month, int year, Map<String, Integer> mails, boolean isInbox) {
-        Map<String, Message[]> map = new HashMap<>();
-        try {
-            SimpleDateFormat df1 = new SimpleDateFormat("MM/dd/yy");
-            String mindt = String.valueOf(month + "/01/" + year);
-            month++;
-            String maxdt = String.valueOf(month + "/01/" + year);
-            Date minDate = df1.parse(mindt);
-            Date maxDate = df1.parse(maxdt);
-            SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.GT, minDate);
-            SearchTerm newerThan = new ReceivedDateTerm(ComparisonTerm.LT, maxDate);
-            Folder temp = inbox;
-            if (!isInbox) {
-                temp = sent;
-            }
-            for (String key : mails.keySet()) {
-
-                AddressStringTerm addressTerm = new AddressStringTerm("Inbox") {
-                    @Override
-                    public boolean match(Message msg) {
-                        if (isInbox) {
-                            try {
-                                for (Address a : msg.getFrom()) {
-                                    String m = accuracyEmail.extraEmail(a.toString());
-                                    if (m.equals(key)) {
-                                        return true;
-                                    }
-                                }
-                            } catch (MessagingException ex) {
-                                Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        } else {
-                            try {
-                                Object content = msg.getContent();
-                                if (content instanceof String) {
-                                    return false;
-                                }
-                                for (Address a : msg.getAllRecipients()) {
-                                    String m = accuracyEmail.extraEmail(a.toString());
-                                    if (m.equals(key)) {
-                                        return true;
-                                    }
-                                }
-                            } catch (MessagingException | IOException ex) {
-                                Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
-                            }
-                        }
-                        return false;
-                    }
-                };
-                FlagTerm delete = new FlagTerm(new Flags(Flags.Flag.DELETED), false);
-                SearchTerm andTerm = new AndTerm(delete, olderThan);
-                andTerm = new AndTerm(andTerm, newerThan);
-                andTerm = new AndTerm(andTerm, addressTerm);
-                Message messages[] = temp.search(andTerm);
-                map.put(key, messages);
-            }
-            return map;
-        } catch (MessagingException | ParseException ex) {
-            Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return map;
-    }
-
     public Map<String, Message[]> statisticAddressEmail(int month, int year, String mail, String pass) {
         Map<String, Message[]> map = new HashMap<>();
         try {
-
-            Properties prop = new Properties();
-            prop.put("mail.imap.host", hostmail);
-            prop.put("mail.imap.port", portmail);
-            prop.put("mail.store.protocol", "imap");
-            prop.put("mail.imap.auth", "true");
-            Session session = Session.getInstance(prop, new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(mail, pass);
-                }
-            });
-            Store ss = session.getStore();
-            ss.connect(hostmail, mail, pass);
-            Folder in = ss.getFolder("Inbox");
-            in.open(Folder.READ_ONLY);
+            Folder in = null, se = null;
+            if (mapsession.get(mail) != null) {
+                Map<String, Folder> m = mapsession.get(mail);
+                in = m.get("inbox");
+                se = m.get("sent");
+            } else {
+                Properties prop = new Properties();
+                prop.put("mail.imap.host", hostmail);
+                prop.put("mail.imap.port", portmail);
+                prop.put("mail.store.protocol", "imap");
+                prop.put("mail.imap.auth", "true");
+                Session session = Session.getInstance(prop, new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(mail, pass);
+                    }
+                });
+                Store ss = session.getStore();
+                ss.connect(hostmail, mail, pass);
+                in = ss.getFolder("Inbox");
+                in.open(Folder.READ_ONLY);
+                se = in.getFolder("sent-mail");
+                se.open(Folder.READ_ONLY);
+                Map<String, Folder> m = new HashMap<>();
+                m.put("inbox", in);
+                m.put("sent", se);
+                mapsession.put(mail, m);
+            }
 
             SimpleDateFormat df1 = new SimpleDateFormat("MM/dd/yy");
             String mindt = String.valueOf(month + "/01/" + year);
@@ -347,9 +297,6 @@ public class SessionEmail {
             andTerm = new AndTerm(andTerm, addressTerm);
             Message messages[] = in.search(andTerm);
             map.put("inbox", messages);
-
-            Folder se = in.getFolder("sent-mail");
-            se.open(Folder.READ_ONLY);
             addressTerm = new AddressStringTerm("sent-mail") {
                 @Override
                 public boolean match(Message msg) {
@@ -395,7 +342,6 @@ public class SessionEmail {
             andTerm = new AndTerm(andTerm, addressTerm);
             messages = se.search(andTerm);
             map.put("sent", messages);
-            ss.close();
         } catch (ParseException ex) {
             Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NoSuchProviderException ex) {

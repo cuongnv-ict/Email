@@ -75,11 +75,13 @@ public class StatisticMail extends javax.swing.JPanel {
             int id = 1;
             tableListAcount.clearTable(tableAcount);
             ArrayList<Thread> arrThread = new ArrayList<>();
+            Map<String, Map<String, Message[]>> map = new TreeMap();
             properties.keySet().stream().map((key) -> new Thread() {
                 @Override
                 public void run() {
                     Map<String, Message[]> msgs = sessionEmail.statisticAddressEmail(mon, ye, String.valueOf(key), dataUserFile.decryptPass(String.valueOf(properties.get(key))));
-                    tableListAcount.statisticEmail(tableAcount, msgs, String.valueOf(key), 0);
+                    // tableListAcount.statisticEmail(tableAcount, msgs, String.valueOf(key), 0);
+                    map.put(String.valueOf(key), msgs);
                 }
             }).forEach((t) -> {
                 t.start();
@@ -88,11 +90,16 @@ public class StatisticMail extends javax.swing.JPanel {
             while (!arrThread.isEmpty()) {
                 ArrayList<Thread> arr = new ArrayList<>();
                 for (Thread x : arrThread) {
-                    if(!x.isAlive()){
+                    if (!x.isAlive()) {
                         arr.add(x);
                     }
                 }
                 arrThread.removeAll(arr);
+            }
+            int count = 1;
+            for (String key : map.keySet()) {
+                tableListAcount.statisticEmail(tableAcount,map.get(key), String.valueOf(key), count);
+                count++;
             }
         }
     }
