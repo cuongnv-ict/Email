@@ -206,7 +206,6 @@ public class ReceiveMail extends javax.swing.JDialog {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Email");
         setMinimumSize(new java.awt.Dimension(420, 478));
-        setPreferredSize(new java.awt.Dimension(480, 500));
         setResizable(false);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -265,7 +264,7 @@ public class ReceiveMail extends javax.swing.JDialog {
         });
         getContentPane().add(foward, new org.netbeans.lib.awtextra.AbsoluteConstraints(302, 442, 70, 25));
 
-        jButton3.setText("Cancle");
+        jButton3.setText("Cancel");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton3ActionPerformed(evt);

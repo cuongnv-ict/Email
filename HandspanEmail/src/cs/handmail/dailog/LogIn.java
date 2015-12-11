@@ -86,11 +86,11 @@ public class LogIn extends javax.swing.JDialog {
         load = new javax.swing.JLabel();
         mail = new javax.swing.JTextField();
         pass = new javax.swing.JPasswordField();
-        log = new java.awt.Button();
-        cancel = new java.awt.Button();
         remeber = new javax.swing.JCheckBox();
         Email = new javax.swing.JLabel();
         Email1 = new javax.swing.JLabel();
+        login = new javax.swing.JButton();
+        cancelLog = new javax.swing.JButton();
         bg = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -102,39 +102,23 @@ public class LogIn extends javax.swing.JDialog {
         load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/slideShowLoader.gif"))); // NOI18N
         load.setEnabled(false);
         getContentPane().add(load);
-        load.setBounds(-244, 0, 1220, 330);
+        load.setBounds(-250, 0, 1220, 330);
+
+        mail.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                mailKeyPressed(evt);
+            }
+        });
         getContentPane().add(mail);
         mail.setBounds(230, 115, 230, 30);
+
+        pass.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                passKeyPressed(evt);
+            }
+        });
         getContentPane().add(pass);
         pass.setBounds(230, 155, 230, 30);
-
-        log.setLabel("Đăng nhập");
-        log.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                logActionPerformed(evt);
-            }
-        });
-        log.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                logKeyPressed(evt);
-            }
-        });
-        getContentPane().add(log);
-        log.setBounds(380, 260, 80, 24);
-
-        cancel.setLabel("Hủy bỏ");
-        cancel.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelActionPerformed(evt);
-            }
-        });
-        cancel.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyPressed(java.awt.event.KeyEvent evt) {
-                cancelKeyPressed(evt);
-            }
-        });
-        getContentPane().add(cancel);
-        cancel.setBounds(280, 260, 80, 24);
 
         remeber.setForeground(java.awt.Color.cyan);
         remeber.setText("Lưu mật khẩu");
@@ -155,6 +139,35 @@ public class LogIn extends javax.swing.JDialog {
         getContentPane().add(Email1);
         Email1.setBounds(140, 120, 70, 25);
 
+        login.setText("Đăng nhập");
+        login.setMaximumSize(new java.awt.Dimension(100, 50));
+        login.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loginActionPerformed(evt);
+            }
+        });
+        login.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                loginKeyPressed(evt);
+            }
+        });
+        getContentPane().add(login);
+        login.setBounds(370, 260, 90, 25);
+
+        cancelLog.setText("Hủy bỏ");
+        cancelLog.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cancelLogActionPerformed(evt);
+            }
+        });
+        cancelLog.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                cancelLogKeyPressed(evt);
+            }
+        });
+        getContentPane().add(cancelLog);
+        cancelLog.setBounds(280, 260, 80, 25);
+
         bg.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/50832074_1.jpg"))); // NOI18N
         bg.setEnabled(false);
         getContentPane().add(bg);
@@ -163,29 +176,43 @@ public class LogIn extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void cancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelActionPerformed
+    private void loginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginActionPerformed
         // TODO add your handling code here:
-        System.exit(0);
-    }//GEN-LAST:event_cancelActionPerformed
+        LogInEmail();
+    }//GEN-LAST:event_loginActionPerformed
 
-    private void cancelKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cancelKeyPressed
-        // TODO add your handling code here:
-        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
-            System.exit(0);
-        }
-    }//GEN-LAST:event_cancelKeyPressed
-
-    private void logKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_logKeyPressed
+    private void loginKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_loginKeyPressed
         // TODO add your handling code here:
         if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
             LogInEmail();
         }
-    }//GEN-LAST:event_logKeyPressed
+    }//GEN-LAST:event_loginKeyPressed
 
-    private void logActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logActionPerformed
+    private void cancelLogActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelLogActionPerformed
         // TODO add your handling code here:
-        LogInEmail();
-    }//GEN-LAST:event_logActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_cancelLogActionPerformed
+
+    private void cancelLogKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_cancelLogKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            System.exit(0);
+        }
+    }//GEN-LAST:event_cancelLogKeyPressed
+
+    private void mailKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_mailKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            LogInEmail();
+        }
+    }//GEN-LAST:event_mailKeyPressed
+
+    private void passKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_passKeyPressed
+        // TODO add your handling code here:
+        if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+            LogInEmail();
+        }
+    }//GEN-LAST:event_passKeyPressed
 
     public void load() {
         load.setVisible(true);
@@ -235,9 +262,9 @@ public class LogIn extends javax.swing.JDialog {
     private javax.swing.JLabel Email;
     private javax.swing.JLabel Email1;
     private javax.swing.JLabel bg;
-    private java.awt.Button cancel;
+    private javax.swing.JButton cancelLog;
     private javax.swing.JLabel load;
-    private java.awt.Button log;
+    private javax.swing.JButton login;
     private javax.swing.JTextField mail;
     private javax.swing.JPasswordField pass;
     private javax.swing.JCheckBox remeber;
