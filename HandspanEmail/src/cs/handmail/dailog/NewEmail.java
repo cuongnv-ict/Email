@@ -243,7 +243,7 @@ public class NewEmail extends javax.swing.JDialog {
             public void run() {
                     try{
 
-                                Message replyMessage = new MimeMessage(session);
+                                MimeMessage replyMessage = new MimeMessage(session);
                                 replyMessage = (MimeMessage) message.reply(false);
                                 replyMessage.setFrom(new InternetAddress(userMail));
                                 
@@ -258,7 +258,7 @@ public class NewEmail extends javax.swing.JDialog {
                                     Multipart multipart = new MimeMultipart("mixed");
                                     // set text parts
                                     MimeBodyPart textPlainPart = new MimeBodyPart();
-                                    textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                                    textPlainPart.setContent(messageBody,mime.getMimteString("text")+"; charset=utf-8");
                                     multipart.addBodyPart(textPlainPart);
                                     // set body parts
                                     MimeBodyPart attachFilePart = new MimeBodyPart();
@@ -269,7 +269,7 @@ public class NewEmail extends javax.swing.JDialog {
                                     multipart.addBodyPart(attachFilePart);
                                     replyMessage.setContent(multipart);
                                 }else{
-                                    replyMessage.setText(ta_message.getText());
+                                    replyMessage.setText(ta_message.getText(),"UTF-8");
                                 }
                                 Address[] address={new InternetAddress(userMail)};
                                 replyMessage.setReplyTo(address);
@@ -324,7 +324,7 @@ public class NewEmail extends javax.swing.JDialog {
                     try{
 
                                 String from = userMail;
-                                Message messFoward = new MimeMessage(session);
+                                MimeMessage messFoward = new MimeMessage(session);
                                 messFoward.setRecipients(Message.RecipientType.TO,
                                 InternetAddress.parse(addrTo));
                                 if(message.getSubject().contains("Fwd:"))
@@ -339,7 +339,7 @@ public class NewEmail extends javax.swing.JDialog {
                                     Multipart multipart = new MimeMultipart("mixed");
                                     // set text parts
                                     MimeBodyPart textPlainPart = new MimeBodyPart();
-                                    textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                                    textPlainPart.setContent(messageBody,mime.getMimteString("text")+"; charset=utf-8");
                                     multipart.addBodyPart(textPlainPart);
                                     // set body parts
                                     MimeBodyPart attachFilePart = new MimeBodyPart();
@@ -352,7 +352,7 @@ public class NewEmail extends javax.swing.JDialog {
                                     multipart.addBodyPart(attachFilePart);
                                     messFoward.setContent(multipart);
                                 }else{
-                                    messFoward.setText(messageBody);
+                                    messFoward.setText(messageBody,"UTF-8");
                                 }
                                 messFoward.saveChanges();
                                 sent.appendMessages(new Message[]{messFoward});
@@ -446,7 +446,7 @@ public class NewEmail extends javax.swing.JDialog {
                     Multipart multipart = new MimeMultipart("mixed");
                     // set text parts
                     MimeBodyPart textPlainPart = new MimeBodyPart();
-                    textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                    textPlainPart.setContent(messageBody,mime.getMimteString("text")+"; charset=utf-8");
                     multipart.addBodyPart(textPlainPart);
                     // set body parts
                     MimeBodyPart attachFilePart = new MimeBodyPart();
@@ -457,7 +457,7 @@ public class NewEmail extends javax.swing.JDialog {
                     multipart.addBodyPart(attachFilePart);
                     message.setContent(multipart);
                 }else{
-                    message.setText(messageBody);
+                    message.setText(messageBody,"UTF-8");
                 }
                 message.saveChanges();
                 return message;
@@ -479,7 +479,7 @@ public class NewEmail extends javax.swing.JDialog {
                     Multipart multipart = new MimeMultipart("mixed");
                     // set text parts
                     MimeBodyPart textPlainPart = new MimeBodyPart();
-                    textPlainPart.setContent(messageBody,mime.getMimteString("text"));
+                    textPlainPart.setContent(messageBody,mime.getMimteString("text")+"; charset=utf-8");
                     multipart.addBodyPart(textPlainPart);
                     // set body parts
                     MimeBodyPart attachFilePart = new MimeBodyPart();
@@ -490,7 +490,7 @@ public class NewEmail extends javax.swing.JDialog {
                     multipart.addBodyPart(attachFilePart);
                     message.setContent(multipart);
                 }else{
-                    message.setText(messageBody);
+                    message.setText(messageBody,"UTF-8");
                 }
                 message.saveChanges();
                 return message;
