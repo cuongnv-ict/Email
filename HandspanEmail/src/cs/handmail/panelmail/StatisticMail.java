@@ -5,6 +5,8 @@
  */
 package cs.handmail.panelmail;
 
+import cs.handmail.dailog.DLElement;
+import cs.handmail.dailog.EditAcount;
 import cs.handmail.file.DataUserFile;
 import cs.handmail.file.ListAcountFile;
 import cs.handmail.mail.SessionEmail;
@@ -21,6 +23,7 @@ import java.util.TreeMap;
 import javax.mail.Message;
 import javax.swing.JOptionPane;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -98,7 +101,7 @@ public class StatisticMail extends javax.swing.JPanel {
             }
             int count = 1;
             for (String key : map.keySet()) {
-                tableListAcount.statisticEmail(tableAcount,map.get(key), String.valueOf(key), count);
+                tableListAcount.statisticEmail(tableAcount, map.get(key), String.valueOf(key), count);
                 count++;
             }
         }
@@ -128,21 +131,30 @@ public class StatisticMail extends javax.swing.JPanel {
         month = new javax.swing.JComboBox<>();
         year = new javax.swing.JComboBox<>();
         load = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
 
         tableAcount.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "STT", "Email", "Số email được yêu cầu trả lời", "Số email nhân viên đã trả lời", "Số email chưa trả lời trong 24h", "Thời gian trả lời trung bình mỗi email (hh::mm)"
+                "", "STT", "Email", "Số email được yêu cầu trả lời", "Số email nhân viên đã trả lời", "Số email chưa trả lời trong 24h", "Thời gian trả lời trung bình mỗi email (hh::mm)"
             }
         ) {
-            boolean[] canEdit = new boolean [] {
-                false, true, false, false, false, false
+            Class[] types = new Class [] {
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
+            boolean[] canEdit = new boolean [] {
+                true, false, true, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
@@ -150,9 +162,11 @@ public class StatisticMail extends javax.swing.JPanel {
         });
         jScrollPane1.setViewportView(tableAcount);
         if (tableAcount.getColumnModel().getColumnCount() > 0) {
-            tableAcount.getColumnModel().getColumn(0).setMinWidth(50);
-            tableAcount.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tableAcount.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableAcount.getColumnModel().getColumn(0).setResizable(false);
+            tableAcount.getColumnModel().getColumn(0).setPreferredWidth(15);
+            tableAcount.getColumnModel().getColumn(1).setMinWidth(50);
+            tableAcount.getColumnModel().getColumn(1).setPreferredWidth(50);
+            tableAcount.getColumnModel().getColumn(1).setMaxWidth(50);
         }
 
         jPanel1.setBackground(java.awt.SystemColor.activeCaption);
@@ -177,6 +191,28 @@ public class StatisticMail extends javax.swing.JPanel {
 
         load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
 
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/table-export.png"))); // NOI18N
+        jLabel6.setMaximumSize(new java.awt.Dimension(32, 32));
+        jLabel6.setMinimumSize(new java.awt.Dimension(32, 32));
+        jLabel6.setPreferredSize(new java.awt.Dimension(32, 32));
+        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel6MouseClicked(evt);
+            }
+        });
+
+        jLabel5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/061065-blue-jelly-icon-people-things-eye.png"))); // NOI18N
+        jLabel5.setMaximumSize(new java.awt.Dimension(32, 32));
+        jLabel5.setMinimumSize(new java.awt.Dimension(32, 32));
+        jLabel5.setPreferredSize(new java.awt.Dimension(32, 32));
+        jLabel5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel5MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -188,20 +224,31 @@ public class StatisticMail extends javax.swing.JPanel {
                 .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, 61, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(load))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(load, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(load, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(month, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -236,6 +283,31 @@ public class StatisticMail extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_yearItemStateChanged
 
+    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseClicked
+
+    private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
+        // TODO add your handling code here:
+        TableModel tableModel = tableAcount.getModel();
+        ArrayList<String> mails = new ArrayList<>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            if ((Boolean) tableModel.getValueAt(i, 0) == true) {
+                mails.add(String.valueOf(tableModel.getValueAt(i, 2)));
+            }
+        }
+        if (mails.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Hãy chọn nhân viên muốn xem.", "", JOptionPane.INFORMATION_MESSAGE);
+        } else if (mails.size() != 1) {
+            JOptionPane.showMessageDialog(null, "Bạn chỉ được phép xem một người.", "", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            int mon = month.getSelectedIndex() + 1;
+            int ye = year.getSelectedIndex() + 2010;
+            DLElement e = new DLElement(null, true,tableListAcount.getInfo(), mails.get(0),ye,mon);
+            e.setVisible(true);
+        }
+    }//GEN-LAST:event_jLabel5MouseClicked
+
     public void runSelected() {
         load.setVisible(true);
         if (th.isAlive()) {
@@ -254,6 +326,8 @@ public class StatisticMail extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel load;

@@ -15,7 +15,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
@@ -37,11 +39,16 @@ import javax.swing.table.TableColumnModel;
 public class TableListAcount {
 
     private AccuracyEmail accuracyEmail;
+    private Map<String, Map<Message, Message>> info;
 
     public TableListAcount() {
         accuracyEmail = new AccuracyEmail();
+        info = new TreeMap<>();
     }
 
+    public Map<String, Map<Message, Message>> getInfo(){
+        return info;
+    }
     public void listAcount(JTable table, Map<String, Integer> map) {
         ArrayList<Object[]> data = new ArrayList();
         int count = 1;
@@ -65,31 +72,6 @@ public class TableListAcount {
 
     }
 
-    public void statisticEmail(JTable table, Map<String, Integer> map, Map<String, Message[]> request, Map<String, Message[]> answer) {
-        ArrayList<Object[]> data = new ArrayList();
-        int count = 1;
-        for (String key : map.keySet()) {
-            Object[] str = new Object[6];
-            str[0] = count;
-            str[1] = key;
-            str[2] = request.get(key).length;
-            str[3] = answer.get(key).length;
-            int[] time = avgTime(request.get(key), answer.get(key));
-            str[4] = time[0];
-            str[5] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
-            data.add(str);
-            count++;
-        }
-        DefaultTableModel model = (DefaultTableModel) table.getModel();
-        int rowCount = model.getRowCount();
-        for (int i = rowCount - 1; i >= 0; i--) {
-            model.removeRow(i);
-        }
-        for (int i = 0; i < data.size(); i++) {
-            model.addRow(data.get(i));
-        }
-    }
-
     public void clearTable(JTable table) {
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         int rowCount = model.getRowCount();
@@ -99,24 +81,26 @@ public class TableListAcount {
     }
 
     public void statisticEmail(JTable table, Map<String, Message[]> msgs, String mail, int id) {
-        Object[] str = new Object[6];
-        str[0] = id;
-        str[1] = mail;
-        str[2] = msgs.get("inbox") == null ? 0 : msgs.get("inbox").length;
-        str[3] = msgs.get("sent") == null ? 0 : msgs.get("sent").length;
-        int[] time = avgTime(msgs);
-        str[4] = time[0];
-        str[5] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
+        Object[] str = new Object[7];
+        str[0] = false;
+        str[1] = id;
+        str[2] = mail;
+        str[3] = msgs.get("inbox") == null ? 0 : msgs.get("inbox").length;
+        str[4] = msgs.get("sent") == null ? 0 : msgs.get("sent").length;
+        int[] time = avgTime(msgs, mail);
+        str[5] = time[0];
+        str[6] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
         model.addRow(str);
     }
 
-    public int[] avgTime(Map<String, Message[]> msgs) {
+    public int[] avgTime(Map<String, Message[]> msgs, String mail) {
         int time[] = new int[2];
         time[0] = 0;
         time[1] = 0;
         ArrayList<Message> re = new ArrayList<>();
         ArrayList<Message> an = new ArrayList<>();
+        Map<Message, Message> xmap = new HashMap<>();
         if (msgs.get("inbox") != null) {
             re.addAll(Arrays.asList(msgs.get("inbox")));
         }
@@ -126,6 +110,7 @@ public class TableListAcount {
         int total = 0;
         for (Message reMSG : re) {
             try {
+                xmap.put(reMSG, null);
                 MimeMessage msg1 = (MimeMessage) reMSG;
                 String idMSG = msg1.getMessageID();
                 Message m = null;
@@ -138,6 +123,7 @@ public class TableListAcount {
                     MimeMessage msg2 = (MimeMessage) anMSG;
                     String rep = msg2.getHeader("In-Reply-To", "In-Reply-To");
                     if (rep.equals(idMSG)) {
+                        xmap.put(reMSG, anMSG);
                         d2 = anMSG.getSentDate();
                         if (d1 == null) {
                             d1 = new Date();
@@ -173,84 +159,7 @@ public class TableListAcount {
             }
         }
         time[1] = re.isEmpty() ? 0 : total / re.size();
-        return time;
-    }
-
-    public int[] avgTime(Message[] request, Message[] answer) {
-        ArrayList<Message> re = new ArrayList<>();
-        ArrayList<Message> an = new ArrayList<>();
-        int time[] = new int[2];
-        time[0] = 0;
-        time[1] = 0;
-        re.addAll(Arrays.asList(request));
-        an.addAll(Arrays.asList(answer));
-        Collections.sort(re, (Message msg1, Message msg2) -> {
-            try {
-                return msg1.getSentDate().compareTo(msg2.getSentDate());
-            } catch (MessagingException ex) {
-                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return -1;
-        });
-        Collections.sort(an, (Message msg1, Message msg2) -> {
-            try {
-                return msg1.getReceivedDate().compareTo(msg2.getReceivedDate());
-            } catch (MessagingException ex) {
-                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            return -1;
-        });
-        int total = 0;
-
-        for (Message msg : re) {
-            try {
-                String address = "";
-                Object content = msg.getContent();
-                Multipart mp = (Multipart) content;
-                for (int i = 0; i < mp.getCount(); i++) {
-                    BodyPart bodyPart = mp.getBodyPart(i);
-                    if (bodyPart.isMimeType("text/plain")) {
-                        String s = (String) bodyPart.getContent();
-                        s = s.trim();
-                        if (!s.contains("Forwarded message from")) {
-                            continue;
-                        }
-                        String[] ds = s.split("\n");
-                        ds = ds[0].split(" ");
-                        address = ds[ds.length - 2];
-                        break;
-                    }
-                }
-
-                boolean flags = false;
-                Message m = null;
-                for (Message ms : an) {
-                    for (Address a : ms.getAllRecipients()) {
-                        if (address.equals(accuracyEmail.extraEmail(a.toString()))) {
-                            int value = subTime(ms.getReceivedDate(), msg.getSentDate());
-                            if (value < (24 * 60)) {
-                                time[0]++;
-                            }
-                            total += value;
-                            m = ms;
-                            flags = true;
-                            break;
-                        }
-                        if (flags) {
-                            break;
-                        }
-                    }
-                }
-                if (!flags) {
-                    total += subTime(new Date(), msg.getSentDate());
-                } else {
-                    an.remove(m);
-                }
-            } catch (IOException | MessagingException ex) {
-                Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        time[1] = re.isEmpty() ? 0 : total / re.size();
+        info.put(mail, xmap);
         return time;
     }
 

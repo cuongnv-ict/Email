@@ -8,6 +8,7 @@ package cs.handmail.processtable;
 import cs.handmail.mail.AccuracyEmail;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
@@ -71,6 +72,76 @@ public class TableListEmail {
             for (int i = 0; i < data.size(); i++) {
                 model.addRow(data.get(i));
             }
+        }
+    }
+
+    public void InfoElement(JTable table, Map<Message, Message> info) {
+
+        int count = 1;
+        ArrayList<Object[]> data = new ArrayList();
+        for (Message msg : info.keySet()) {
+            SimpleDateFormat dt = new SimpleDateFormat("dd/mm/yyyy HH:mm:ss");
+            Object[] str = new Object[7];
+            str[0] = count;
+            try {
+                for (Address a : msg.getFrom()) {
+                    str[1] = accuracyEmail.extraEmail(a.toString());
+                }
+            } catch (MessagingException ex) {
+                Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            try {
+                str[2] = dt.format(msg.getReceivedDate());
+            } catch (MessagingException ex) {
+                Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                str[3] = msg.getSubject();
+            } catch (MessagingException ex) {
+                Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            Message an = info.get(msg);
+            if (an == null) {
+                str[4] = "";
+                str[5] = "";
+                str[6] = "";
+            } else {
+                try {
+                    String m = "";
+                    for (Address a : an.getAllRecipients()) {
+                        if (m.equals("")) {
+                            m = accuracyEmail.extraEmail(a.toString());
+                        } else {
+                            m = m + "/";
+                            m = m + accuracyEmail.extraEmail(a.toString());
+                        }
+                    }
+                    str[4] = m;
+                } catch (MessagingException ex) {
+                    Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                try {
+                    str[5] = dt.format(an.getSentDate());
+                } catch (MessagingException ex) {
+                    Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                try {
+                    str[6] = an.getSubject();
+                } catch (MessagingException ex) {
+                    Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            count++;
+            data.add(str);
+        }
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
+        int rowCount = model.getRowCount();
+        for (int i = rowCount - 1; i >= 0; i--) {
+            model.removeRow(i);
+        }
+        for (int i = 0; i < data.size(); i++) {
+            model.addRow(data.get(i));
         }
     }
 }
