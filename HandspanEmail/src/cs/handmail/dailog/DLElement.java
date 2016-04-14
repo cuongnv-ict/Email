@@ -28,6 +28,7 @@ public class DLElement extends javax.swing.JDialog {
     private final Map<String, Map<Message, Message>> info;
     private final String mail;
     private final int ye, mon;
+    private TableListEmail tableList;
 
     /**
      * Creates new form DLElement
@@ -59,8 +60,8 @@ public class DLElement extends javax.swing.JDialog {
     }
 
     public void showinfo() {
-        TableListEmail tableList = new TableListEmail();
-        tableList.InfoElement(tableAcount, info.get(mail));
+        tableList = new TableListEmail();
+        tableList.InfoElement(tableAcount, info.get(mail),0);
     }
 
     /**
@@ -85,6 +86,7 @@ public class DLElement extends javax.swing.JDialog {
         jPanel1 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         load = new javax.swing.JLabel();
+        cbSelect = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
@@ -94,7 +96,7 @@ public class DLElement extends javax.swing.JDialog {
 
             },
             new String [] {
-                "STT", "Email gửi", "Thời gian gửi", "Tiêu đề mail gửi", "Địa chỉ mail trả lời", "Thời gian trả lời", "Tiêu đề mail trả lời"
+                "STT", "Email gửi", "Thời gian gửi", "Tiêu đề mail gửi", "Địa chỉ mail trả lời", "Thời gian trả lời", "Tiêu đề mail trả lời", "Thời gian trả lời"
             }
         ));
         jScrollPane1.setViewportView(tableAcount);
@@ -114,22 +116,35 @@ public class DLElement extends javax.swing.JDialog {
 
         load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
 
+        cbSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mail trong tháng", "Mail chưa trả lời trong 24h", "Mail chưa trả lời quá 24h", "Mail đã trả lời trong tháng", "Mail chưa trả lời trong tháng" }));
+        cbSelect.setPreferredSize(new java.awt.Dimension(160, 30));
+        cbSelect.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbSelectActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(cbSelect, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(load))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 17, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(load, javax.swing.GroupLayout.Alignment.TRAILING)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(cbSelect, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addContainerGap())
+                    .addComponent(load, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -144,7 +159,7 @@ public class DLElement extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 391, Short.MAX_VALUE))
         );
 
         pack();
@@ -160,8 +175,14 @@ public class DLElement extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_jLabel6MouseClicked
 
+    private void cbSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSelectActionPerformed
+        // TODO add your handling code here:
+        tableList.InfoElement(tableAcount, info.get(mail),cbSelect.getSelectedIndex());
+    }//GEN-LAST:event_cbSelectActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> cbSelect;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;

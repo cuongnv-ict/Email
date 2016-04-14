@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Level;
@@ -46,9 +47,10 @@ public class TableListAcount {
         info = new TreeMap<>();
     }
 
-    public Map<String, Map<Message, Message>> getInfo(){
+    public Map<String, Map<Message, Message>> getInfo() {
         return info;
     }
+
     public void listAcount(JTable table, Map<String, Integer> map) {
         ArrayList<Object[]> data = new ArrayList();
         int count = 1;
@@ -85,9 +87,9 @@ public class TableListAcount {
         str[0] = false;
         str[1] = id;
         str[2] = mail;
-        str[3] = msgs.get("inbox") == null ? 0 : msgs.get("inbox").length;
-        str[4] = msgs.get("sent") == null ? 0 : msgs.get("sent").length;
         int[] time = avgTime(msgs, mail);
+        str[3] = msgs.get("inbox") == null ? 0 : msgs.get("inbox").length;
+        str[4] = time[2];
         str[5] = time[0];
         str[6] = String.valueOf(time[1] / 60 + ":" + time[1] % 60);
         DefaultTableModel model = (DefaultTableModel) table.getModel();
@@ -95,9 +97,10 @@ public class TableListAcount {
     }
 
     public int[] avgTime(Map<String, Message[]> msgs, String mail) {
-        int time[] = new int[2];
+        int time[] = new int[3];
         time[0] = 0;
         time[1] = 0;
+        time[2] = 0;
         ArrayList<Message> re = new ArrayList<>();
         ArrayList<Message> an = new ArrayList<>();
         Map<Message, Message> xmap = new HashMap<>();
@@ -123,6 +126,7 @@ public class TableListAcount {
                     MimeMessage msg2 = (MimeMessage) anMSG;
                     String rep = msg2.getHeader("In-Reply-To", "In-Reply-To");
                     if (rep.equals(idMSG)) {
+                        time[2]++;
                         xmap.put(reMSG, anMSG);
                         d2 = anMSG.getSentDate();
                         if (d1 == null) {
@@ -133,6 +137,7 @@ public class TableListAcount {
                             d2 = new Date();
                         }
                         value = subTime(d2, d1);
+                        total += value;
                         isF = false;
                         m = anMSG;
                         break;
@@ -153,18 +158,18 @@ public class TableListAcount {
                 } else {
                     an.remove(m);
                 }
-                total += value;
+                // total += value;
             } catch (MessagingException ex) {
                 Logger.getLogger(TableListAcount.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        time[1] = re.isEmpty() ? 0 : total / re.size();
+        time[1] = time[2] == 0 ? 0 : total / time[2];
         info.put(mail, xmap);
         return time;
     }
 
     public int subTime(Date t1, Date t2) {
-        SimpleDateFormat dt = new SimpleDateFormat("dd-HH-mm-ss");
+        SimpleDateFormat dt = new SimpleDateFormat("dd-HH-mm-ss", Locale.ROOT);
         String s1[] = dt.format(t1).split("-");
         String s2[] = dt.format(t2).split("-");
         int day1, day2, h1, h2, min1, min2;

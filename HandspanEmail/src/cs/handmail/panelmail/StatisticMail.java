@@ -10,6 +10,7 @@ import cs.handmail.dailog.EditAcount;
 import cs.handmail.file.DataUserFile;
 import cs.handmail.file.ListAcountFile;
 import cs.handmail.mail.SessionEmail;
+import cs.handmail.processtable.ExportExcel;
 import cs.handmail.processtable.TableListAcount;
 import java.awt.Color;
 import java.awt.Component;
@@ -285,6 +286,14 @@ public class StatisticMail extends javax.swing.JPanel {
 
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
         // TODO add your handling code here:
+        ExportExcel ex = new ExportExcel();
+        int mon = month.getSelectedIndex() + 1;
+        int ye = year.getSelectedIndex() + 2010;
+        ex.setFolder(String.valueOf(mon+"_"+ye+"_handspan") + ".xls");
+        ex.setJtableData(tableAcount);
+        if (ex.getPathFolder() != null) {
+            ex.export();
+        }
     }//GEN-LAST:event_jLabel6MouseClicked
 
     private void jLabel5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel5MouseClicked
@@ -303,7 +312,7 @@ public class StatisticMail extends javax.swing.JPanel {
         } else {
             int mon = month.getSelectedIndex() + 1;
             int ye = year.getSelectedIndex() + 2010;
-            DLElement e = new DLElement(null, true,tableListAcount.getInfo(), mails.get(0),ye,mon);
+            DLElement e = new DLElement(null, true, tableListAcount.getInfo(), mails.get(0), ye, mon);
             e.setVisible(true);
         }
     }//GEN-LAST:event_jLabel5MouseClicked

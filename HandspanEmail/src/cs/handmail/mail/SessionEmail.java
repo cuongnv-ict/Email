@@ -98,6 +98,7 @@ public class SessionEmail {
 
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
+            System.err.println(pass+":"+mail);
             Properties pro = new Properties();
             pro.put("mail.imap.host", host);
             pro.put("mail.imap.port", port);
@@ -122,10 +123,10 @@ public class SessionEmail {
             isAdmin = email.equals(adminFile.readDataUser());
             return true;
         } catch (NoSuchProviderException ex) {
-            //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+           
             return false;
         } catch (MessagingException ex) {
-            //  Logger.getLogger(SessionEmail.class.getName()).log(Level.SEVERE, null, ex);
+              JOptionPane.showMessageDialog(null, "Bạn chưa tại folder sent-mail", "LogIn", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
