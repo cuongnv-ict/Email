@@ -98,7 +98,7 @@ public class SessionEmail {
 
     public boolean connectIMAPS(String mail, String pass, String host, String port) {
         try {
-            System.err.println(pass+":"+mail);
+            System.err.println(pass + ":" + mail);
             Properties pro = new Properties();
             pro.put("mail.imap.host", host);
             pro.put("mail.imap.port", port);
@@ -123,10 +123,10 @@ public class SessionEmail {
             isAdmin = email.equals(adminFile.readDataUser());
             return true;
         } catch (NoSuchProviderException ex) {
-           
+
             return false;
         } catch (MessagingException ex) {
-              JOptionPane.showMessageDialog(null, "Bạn chưa tại folder sent-mail", "LogIn", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Bạn chưa tại folder sent-mail", "LogIn", JOptionPane.ERROR_MESSAGE);
             return false;
         }
     }
@@ -190,12 +190,12 @@ public class SessionEmail {
         return smtpSession;
     }
 
-    public void TimeOut(){
-        for(String key : mapsession.keySet()){
+    public void TimeOut() {
+        for (String key : mapsession.keySet()) {
             Map m = mapsession.get(key);
             Folder in = (Folder) m.get("inbox");
             Folder se = (Folder) m.get("sent");
-            if(in.isOpen() && se.isOpen()){
+            if (in.isOpen() && se.isOpen()) {
                 try {
                     in.getMessageCount();
                     se.getMessageCount();
@@ -205,6 +205,7 @@ public class SessionEmail {
             }
         }
     }
+
     public Map<String, Integer> addressEmail() {
         Map<String, Integer> mails = new TreeMap<>();
         try {
@@ -236,7 +237,7 @@ public class SessionEmail {
         return mails;
     }
 
-    public Map<String, Message[]> statisticAddressEmail(int month, int year, String mail, String pass) {
+    public Map<String, Message[]> statisticAddressEmail(Date d1, Date d2, String mail, String pass) {
         Map<String, Message[]> map = new HashMap<>();
         try {
             Folder in = null, se = null;
@@ -246,7 +247,7 @@ public class SessionEmail {
                 se = m.get("sent");
             }
             if (in != null && se != null && in.isOpen() && se.isOpen()) {
-                
+
             } else {
                 Properties prop = new Properties();
                 prop.put("mail.imap.host", hostmail);
@@ -271,10 +272,9 @@ public class SessionEmail {
                 mapsession.put(mail, m);
             }
 
-            SimpleDateFormat df1 = new SimpleDateFormat("MM/dd/yy");
-            String mindt = String.valueOf(month + "/01/" + year);
-            month++;
-            String maxdt = String.valueOf(month + "/01/" + year);
+            SimpleDateFormat df1 = new SimpleDateFormat("MM/dd/yy");           
+            String mindt = df1.format(d1);
+            String maxdt = df1.format(d2);
             Date minDate = df1.parse(mindt);
             Date maxDate = df1.parse(maxdt);
             SearchTerm olderThan = new ReceivedDateTerm(ComparisonTerm.GT, minDate);

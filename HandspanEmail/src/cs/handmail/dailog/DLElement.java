@@ -16,6 +16,7 @@ import java.awt.Component;
 import java.util.Map;
 import java.util.Properties;
 import javax.mail.Message;
+import javax.swing.JFrame;
 import javax.swing.table.TableCellRenderer;
 import org.apache.poi.hwpf.usermodel.Table;
 
@@ -27,7 +28,6 @@ public class DLElement extends javax.swing.JDialog {
 
     private final Map<String, Map<Message, Message>> info;
     private final String mail;
-    private final int ye, mon;
     private TableListEmail tableList;
 
     /**
@@ -38,17 +38,14 @@ public class DLElement extends javax.swing.JDialog {
      * @param info
      * @param email
      * @param mail
-     * @param ye
-     * @param mon
      */
-    public DLElement(java.awt.Frame parent, boolean modal, Map<String, Map<Message, Message>> info, String mail, int ye, int mon) {
+    public DLElement(java.awt.Frame parent, boolean modal, Map<String, Map<Message, Message>> info, String mail) {
         super(parent, modal);
         initComponents();
         this.info = info;
         this.mail = mail;
-        this.ye = ye;
-        this.mon = mon;
         load.setVisible(true);
+        this.setSize(1200, 600);
         Thread t = new Thread() {
             @Override
             public void run() {
@@ -61,7 +58,7 @@ public class DLElement extends javax.swing.JDialog {
 
     public void showinfo() {
         tableList = new TableListEmail();
-        tableList.InfoElement(tableAcount, info.get(mail),0);
+        tableList.InfoElement(tableAcount, info.get(mail), 0);
     }
 
     /**
@@ -116,7 +113,7 @@ public class DLElement extends javax.swing.JDialog {
 
         load.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/loader-newui.gif"))); // NOI18N
 
-        cbSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mail trong tháng", "Mail chưa trả lời trong 24h", "Mail chưa trả lời quá 24h", "Mail đã trả lời trong tháng", "Mail chưa trả lời trong tháng" }));
+        cbSelect.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mail trong tháng", "Mail chưa trả lời trong 24h", "Mail chưa trả lời quá 24h", "Mail đã trả lời trong 24h", "Mail đã trả lời quá 24h", "Mail đã trả lời trong tháng", "Mail chưa trả lời trong tháng" }));
         cbSelect.setPreferredSize(new java.awt.Dimension(160, 30));
         cbSelect.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -168,7 +165,7 @@ public class DLElement extends javax.swing.JDialog {
     private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
         // TODO add your handling code here:
         ExportExcel ex = new ExportExcel();
-        ex.setFolder(mail+".xls");
+        ex.setFolder(mail + ".xls");
         ex.setJtableData(tableAcount);
         if (ex.getPathFolder() != null) {
             ex.export();
@@ -177,7 +174,7 @@ public class DLElement extends javax.swing.JDialog {
 
     private void cbSelectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbSelectActionPerformed
         // TODO add your handling code here:
-        tableList.InfoElement(tableAcount, info.get(mail),cbSelect.getSelectedIndex());
+        tableList.InfoElement(tableAcount, info.get(mail), cbSelect.getSelectedIndex());
     }//GEN-LAST:event_cbSelectActionPerformed
 
 

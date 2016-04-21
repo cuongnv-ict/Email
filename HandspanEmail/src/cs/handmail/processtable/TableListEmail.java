@@ -106,8 +106,8 @@ public class TableListEmail {
             }
             Message an = info.get(msg);
             if (an == null) {
-                if (status == 4) {
-                    flags = 4;
+                if (status == 6) {
+                    flags = 6;
                 }
                 if (status == 1 || status == 2) {
                     Date date = new Date();
@@ -139,8 +139,8 @@ public class TableListEmail {
                             m = m + accuracyEmail.extraEmail(a.toString());
                         }
                     }
-                    if (status == 3) {
-                        flags = 3;
+                    if (status == 5) {
+                        flags = 5;
                     }
                     str[4] = m;
                 } catch (MessagingException ex) {
@@ -158,6 +158,13 @@ public class TableListEmail {
                 }
                 try {
                     int time = subTime(an.getSentDate(), msg.getReceivedDate());
+                    if (time <= 1440) {
+                        if (status == 3) {
+                            flags = 3;
+                        }
+                    } else if (status == 4) {
+                        flags = 4;
+                    }
                     str[7] = String.valueOf(time / 60 + ":" + time % 60);
                 } catch (MessagingException ex) {
                     Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
@@ -188,6 +195,18 @@ public class TableListEmail {
                     break;
                 case 4:
                     if (flags == 4) {
+                        count++;
+                        data.add(str);
+                    }
+                    break;
+                case 5:
+                    if (flags == 5) {
+                        count++;
+                        data.add(str);
+                    }
+                    break;
+                case 6:
+                    if (flags == 6) {
                         count++;
                         data.add(str);
                     }
