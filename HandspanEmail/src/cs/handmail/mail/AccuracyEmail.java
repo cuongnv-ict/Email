@@ -15,7 +15,7 @@ public class AccuracyEmail {
         String[] arrayMail = mail.split(" ");
         String m = arrayMail[arrayMail.length - 1];
         if (m.endsWith(">")) {
-            return m.substring(1,m.length()-1);
+            return m.substring(1,m.length()-1).toLowerCase();
         } else {
             return m;
         }

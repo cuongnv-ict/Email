@@ -78,9 +78,7 @@ public class StatisticMail extends javax.swing.JPanel {
         } catch (ParseException ex) {
             Logger.getLogger(StatisticMail.class.getName()).log(Level.SEVERE, null, ex);
         }
-        createDatePicker();
-        System.err.println(selectedDate1);
-        System.err.println(selectedDate2);
+        createDatePicker();       
         th = new Thread() {
             @Override
             public void run() {

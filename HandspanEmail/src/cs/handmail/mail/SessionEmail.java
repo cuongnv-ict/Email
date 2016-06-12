@@ -298,8 +298,8 @@ public class SessionEmail {
                             return true;
                         }
                         if (f1) {
-                            String sub = msg.getSubject();
-                            if (sub != null && sub.startsWith("Fwd")) {
+                            String sub = msg.getSubject().substring(0, 3).toUpperCase();
+                            if (sub != null && sub.startsWith("FW")) {
                                 return true;
                             }
                         }

@@ -4,13 +4,10 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/F:/Email/HandspanEmail/src/cs/handmail/processtable/TableListAcount.java</file>
+            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/dailog/EditAcount.java</file>
             <file>file:/F:/Email/HandspanEmail/src/cs/handmail/panelmail/StatisticMail.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/dailog/LogIn.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/dailog/AddAcount.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/dailog/Admin.java</file>
             <file>file:/F:/Email/HandspanEmail/src/cs/handmail/dailog/DLElement.java</file>
             <file>file:/F:/Email/HandspanEmail/src/cs/handmail/mail/SessionEmail.java</file>
-            <file>file:/F:/Email/HandspanEmail/src/cs/handmail/processtable/TableListEmail.java</file>
         </group>
     </open-files>
 </project-private>

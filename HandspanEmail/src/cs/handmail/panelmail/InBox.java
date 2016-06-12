@@ -38,6 +38,7 @@ public class InBox extends javax.swing.JPanel {
     private Message message[];
     Vector messageDisplay;
     private InBox main;
+
     /**
      * Creates new form InBox
      *
@@ -89,42 +90,39 @@ public class InBox extends javax.swing.JPanel {
         th.start();
     }
 
-    public void openMessage(int numberOfmessageInbox)
-    {
-        
+    public void openMessage(int numberOfmessageInbox) {
+
         messageDisplay.add(numberOfmessageInbox);
     }
-    
-    public void closeMessage(int numberOfmessageInbox)
-    {
-        try{
-            int i =0;
-            while(i<messageDisplay.size())
-            {
-                if((int)messageDisplay.get(i) == numberOfmessageInbox) break;
+
+    public void closeMessage(int numberOfmessageInbox) {
+        try {
+            int i = 0;
+            while (i < messageDisplay.size()) {
+                if ((int) messageDisplay.get(i) == numberOfmessageInbox) {
+                    break;
+                }
                 i++;
             }
             messageDisplay.removeElementAt(i);
-        }catch(Exception ex)
-        {
-            
+        } catch (Exception ex) {
+
         }
     }
-    
-    boolean checkMessage(int numberOfmessageInbox)
-    {
-        try{
-            for(int i = 0; i<messageDisplay.size();i++)
-            {
-                if((int)messageDisplay.get(i)== numberOfmessageInbox) return true;
+
+    boolean checkMessage(int numberOfmessageInbox) {
+        try {
+            for (int i = 0; i < messageDisplay.size(); i++) {
+                if ((int) messageDisplay.get(i) == numberOfmessageInbox) {
+                    return true;
+                }
             }
             return false;
-        }catch(Exception ex)
-        {
+        } catch (Exception ex) {
             return false;
         }
     }
-    
+
     public void updateEmail() {
         message = null;
         switch (flags) {
@@ -144,32 +142,30 @@ public class InBox extends javax.swing.JPanel {
                 message = sessionEmail.getMessageDeleteSent();
                 break;
         }
-        tableListEmail.displayEmail(table, message);
+        tableListEmail.displayEmail(table, message, flags == CenterMail.SENT);
     }
 
     public void close() {
         timeout = false;
     }
 
-    /****
+    /**
+     * **
      * click in row double click
      */
-    
-    void setTableDoubleClick()
-    {
+    void setTableDoubleClick() {
         table.addMouseListener(new MouseAdapter() {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                JTable table =(JTable) e.getSource();
+                JTable table = (JTable) e.getSource();
                 Point p = e.getPoint();
-                
+
                 int row = table.rowAtPoint(p);
                 if (e.getClickCount() == 2) {
-                    int temp =message[message.length-1-row].getMessageNumber();
-                    if(!checkMessage(temp))
-                    {
-                        ReceiveMail receveiMail = new ReceiveMail(null, false,message[message.length-1-row],sessionEmail);
+                    int temp = message[message.length - 1 - row].getMessageNumber();
+                    if (!checkMessage(temp)) {
+                        ReceiveMail receveiMail = new ReceiveMail(null, false, message[message.length - 1 - row], sessionEmail);
                         receveiMail.setParent(main);
                         receveiMail.numberMess = temp;
                         openMessage(temp);
@@ -184,19 +180,19 @@ public class InBox extends javax.swing.JPanel {
                         });
                         receveiMail.setAlwaysOnTop(true);
                         receveiMail.setVisible(true);
-                    }else{
+                    } else {
 
                         final JDialog dialog = new JDialog();
-                        dialog.setAlwaysOnTop(true);    
-                        JOptionPane.showMessageDialog(dialog,"Mail đã được mở");
-                        
+                        dialog.setAlwaysOnTop(true);
+                        JOptionPane.showMessageDialog(dialog, "Mail đã được mở");
+
                     }
                 }
             }
-            
+
         });
     }
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

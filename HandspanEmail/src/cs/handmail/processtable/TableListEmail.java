@@ -8,6 +8,7 @@ package cs.handmail.processtable;
 import cs.handmail.mail.AccuracyEmail;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class TableListEmail {
         flags = 0;
     }
 
-    public void displayEmail(JTable table, Message[] message) {
+    public void displayEmail(JTable table, Message[] message, boolean isSent) {
         if (message != null) {
             ArrayList<Object[]> data = new ArrayList<>();
             int count = 1;
@@ -45,25 +46,48 @@ public class TableListEmail {
                     Object[] str = new Object[5];
                     str[0] = false;
                     str[1] = count;
-                    if (msg.getSentDate() == null) {
+                    if (isSent) {
+                        if (msg.getSentDate() == null) {
+                            str[2] = "";
+                        } else {
+                            str[2] = df1.format(msg.getSentDate());
+                        }
+                    } else if (msg.getReceivedDate() == null) {
                         str[2] = "";
                     } else {
-                        str[2] = df1.format(msg.getSentDate());
+                        str[2] = df1.format(msg.getReceivedDate());
                     }
 
-                    int z = 0;
-                    for (Address a : msg.getFrom()) {
-                        String m = accuracyEmail.extraEmail(a.toString());
-                        if (z == 0) {
-                            str[3] = m;
-                            z++;
-                        } else {
-                            str[3] = String.valueOf(str[3]).concat(";" + m);
+                    if (isSent) {
+                        int z = 0;
+                        for (Address a : msg.getAllRecipients()) {
+                            String m = accuracyEmail.extraEmail(a.toString());
+                            if (z == 0) {
+                                str[3] = m;
+                                z++;
+                            } else {
+                                str[3] = String.valueOf(str[3]).concat(";" + m);
+                            }
+                            str[4] = msg.getSubject();
+                            data.add(str);
+                            count++;
                         }
-                        str[4] = msg.getSubject();
-                        data.add(str);
-                        count++;
+                    } else {
+                        int z = 0;
+                        for (Address a : msg.getFrom()) {
+                            String m = accuracyEmail.extraEmail(a.toString());
+                            if (z == 0) {
+                                str[3] = m;
+                                z++;
+                            } else {
+                                str[3] = String.valueOf(str[3]).concat(";" + m);
+                            }
+                            str[4] = msg.getSubject();
+                            data.add(str);
+                            count++;
+                        }
                     }
+
                 } catch (MessagingException ex) {
                     Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -82,7 +106,31 @@ public class TableListEmail {
     public void InfoElement(JTable table, Map<Message, Message> info, int status) {
         int count = 1;
         ArrayList<Object[]> data = new ArrayList();
+        ArrayList<Message> infomess = new ArrayList<>();
         for (Message msg : info.keySet()) {
+            infomess.add(msg);
+        }
+
+        infomess.sort(new Comparator<Message>() {
+            @Override
+            public int compare(Message o1, Message o2) {
+                try {
+                    Date d1 = o1.getReceivedDate();
+                    Date d2 = o2.getReceivedDate();
+                    if (d1.after(d2)) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                } catch (MessagingException ex) {
+                    Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                return -1;
+            }
+        });
+//Message msg : info.keySet()
+        for (int i =0;i<infomess.size();i++) {
+            Message msg = infomess.get(i);
             SimpleDateFormat dt = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             Object[] str = new Object[8];
             str[0] = count;
@@ -104,7 +152,7 @@ public class TableListEmail {
             } catch (MessagingException ex) {
                 Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
             }
-            Message an = info.get(msg);
+            Message an = info.get(msg);          
             if (an == null) {
                 if (status == 6) {
                     flags = 6;
@@ -122,7 +170,6 @@ public class TableListEmail {
                     } catch (MessagingException ex) {
                         Logger.getLogger(TableListEmail.class.getName()).log(Level.SEVERE, null, ex);
                     }
-
                 }
                 str[4] = "";
                 str[5] = "";
